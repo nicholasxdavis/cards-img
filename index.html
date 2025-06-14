@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cards MMS - Img</title>
+    <title>Cards MMS - Gallery</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -217,10 +217,13 @@
     <div id="password-protection" class="password-container">
         <div class="password-box">
             <div class="text-center mb-6">
-                <div class="flex justify-center mb-4">
-                    <img src="assets/logo_black.png" alt="Cards Logo" class="h-14">
-                </div>
-                <h2 class="text-2xl font-bold text-dark mb-1">Photo Libary</h2>
+               <div class="flex justify-center mb-4">
+  <a href="https://nicholasxdavis.github.io/cards-mms/#">
+    <img src="assets/logo_black.png" alt="Cards Logo" class="h-14">
+  </a>
+</div>
+
+                <h2 class="text-2xl font-bold text-dark mb-1">MMS Gallery</h2>
                 <p class="text-gray-600">Enter credentials to continue</p>
             </div>
             
@@ -260,8 +263,11 @@
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex justify-between items-center py-4">
                     <div class="flex items-center space-x-4">
-                        <img src="assets/logo.png" alt="Cards Logo" class="h-10">
-                    </div>
+  <a href="https://nicholasxdavis.github.io/cards-mms/#">
+    <img src="assets/logo.png" alt="Cards Logo" class="h-10">
+  </a>
+</div>
+
                     <div class="flex items-center space-x-4">
                         <button id="submit-ticket-btn" class="bg-primary hover:bg-primary-dark px-3 py-1.5 rounded-md text-sm font-medium transition-colors">
                             <i class="fas fa-ticket-alt mr-1"></i> Submit Ticket
@@ -384,7 +390,9 @@
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 <div class="md:flex md:items-center md:justify-between">
                     <div class="flex justify-center md:order-2 space-x-6">
-
+                        <p class="text-xs text-gray-500">
+                            <span class="block md:inline mt-1 md:mt-0">A Product of Blacnova.</span>
+                        </p>
                     </div>
                     <div class="mt-8 md:mt-0 md:order-1">
                         <p class="text-center text-xs text-gray-500">
@@ -608,6 +616,63 @@
             </style>
         `);
     })();
+    // Add this to your existing script section
+document.addEventListener('DOMContentLoaded', () => {
+    // Function to copy text to clipboard
+    function copyToClipboard(text) {
+        navigator.clipboard.writeText(text).catch(() => {
+            // Fallback for older browsers
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+        });
+    }
+
+    // Function to show toast message
+    function showToast(message, type = 'success') {
+        const toast = document.getElementById('toast');
+        const toastMsg = document.getElementById('toast-msg');
+        const icon = toast.querySelector('i');
+        
+        toastMsg.textContent = message;
+        
+        if (type === 'error') {
+            icon.className = 'fas fa-exclamation-circle mt-0.5 mr-2 text-red-400';
+        } else {
+            icon.className = 'fas fa-check-circle mt-0.5 mr-2 text-green-400';
+        }
+        
+        toast.classList.remove('hidden');
+        setTimeout(() => toast.classList.add('hidden'), 3000);
+    }
+
+    // Handle copy buttons in uploads modal
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('.copy-btn') || e.target.closest('.copy-btn i')) {
+            e.preventDefault();
+            const button = e.target.closest('.copy-btn');
+            const url = button.getAttribute('data-url') || 
+                         button.parentElement.querySelector('.url-input').value;
+            
+            copyToClipboard(url);
+            showToast('Link copied to clipboard');
+            
+            // Visual feedback
+            const icon = button.querySelector('i');
+            const originalHTML = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-check"></i> Copied!';
+            button.disabled = true;
+            
+            setTimeout(() => {
+                button.innerHTML = originalHTML;
+                button.disabled = false;
+            }, 2000);
+        }
+    });
+});
 </script>
 
 
