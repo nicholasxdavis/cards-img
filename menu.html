@@ -380,6 +380,7 @@
             align-items: center;
         }
     </style>
+
 </head>
 <body class="bg-gray-50">
     <!-- Main Content -->
@@ -549,7 +550,289 @@
             </div>
         </footer>
     </div>
+<style> 
+/* Password Protection */
+.password-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(23, 23, 23, 0.96);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    backdrop-filter: blur(5px);
+    overflow: hidden; /* Prevent scrolling */
+}
 
+body.password-protected {
+    overflow: hidden; /* Disable scrolling on body */
+    position: fixed;
+    width: 100%;
+    height: 100%;
+}
+
+.password-box {
+    background: white;
+    border-radius: 12px;
+    padding: 2.5rem;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    transform: translateY(-20px);
+    opacity: 0;
+    animation: slideUp 0.4s ease-out forwards;
+}
+
+@keyframes slideUp {
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.remember-me {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.remember-me input {
+    margin-right: 0.5rem;
+}
+</style>
+
+<!-- Password Protection -->
+<div id="password-protection" class="password-container">
+    <div class="password-box">
+        <div class="text-center mb-6">
+            <div class="flex justify-center mb-4">
+                <a href="https://nicholasxdavis.github.io/cards-mms/#">
+                    <img src="assets/logo_black.png" alt="Cards Logo" class="h-14">
+                </a>
+            </div>
+            <h2 class="text-2xl font-bold text-dark mb-1">Content Management</h2>
+            <p class="text-gray-600">Enter credentials to continue</p>
+        </div>
+        
+        <form id="password-form" class="space-y-4">
+            <div>
+                <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                <input type="email" id="email" required
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary">
+            </div>
+            
+            <div>
+                <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                <input type="password" id="password" required
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary">
+            </div>
+            
+            <div class="remember-me">
+                <input type="checkbox" id="remember-me" name="remember-me">
+                <label for="remember-me" class="text-sm text-gray-700">Remember me</label>
+            </div>
+            
+            <button type="submit" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                Continue
+            </button>
+        </form>
+        
+        <div class="mt-6 text-center text-xs text-gray-500">
+            Unauthorized use is unlawful and prohibited
+        </div>
+    </div>
+</div>
+
+<script>
+// Wrap everything in an IIFE (Immediately Invoked Function Expression) to avoid redeclaration
+(function() {
+    // Enhanced Password Protection with DOM Tampering Protection
+    const passwordProtection = document.getElementById('password-protection');
+    const mainContent = document.getElementById('main-content');
+
+    // Check if user has recently logged in or has "Remember me" enabled
+    const checkAccess = () => {
+        // If "Remember me" is enabled
+        if (localStorage.getItem('remembered') === 'true') {
+            return true;
+        }
+        
+        // Check 24-hour session
+        const lastLogin = localStorage.getItem('lastLogin');
+        if (lastLogin) {
+            const now = new Date().getTime();
+            const twentyFourHours = 24 * 60 * 60 * 1000;
+            return (now - parseInt(lastLogin)) < twentyFourHours;
+        }
+        
+        return false;
+    };
+
+    // If user has access, hide the password protection immediately
+    if (checkAccess()) {
+        passwordProtection.style.display = 'none';
+        if (mainContent) mainContent.classList.remove('hidden');
+        document.body.classList.remove('password-protected');
+        return; // Skip the rest of the security checks since user is authenticated
+    }
+
+    // Self-check on load
+    if (!passwordProtection) {
+        document.body.innerHTML = `
+            <div style="display:flex; justify-content:center; align-items:center; height:100vh; background:#171717; color:white; font-family:sans-serif; text-align:center; padding:20px;">
+                <div>
+                    <h1 style="color:#ef4444; margin-bottom:20px;">Security System Activated</h1>
+                    <p>Unauthorized use is unlawful and prohibited</p>
+                </div>
+            </div>
+        `;
+        document.body.style.overflow = 'hidden';
+        throw new Error("Security system activated");
+    }
+
+    // Mutation Observer to detect DOM tampering
+    const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            if (!document.body.contains(passwordProtection)) {
+                // If password protection element was removed, nuke the page
+                document.body.innerHTML = `
+                    <div style="display:flex; justify-content:center; align-items:center; height:100vh; background:#171717; color:white; font-family:sans-serif; text-align:center; padding:20px;">
+                        <div>
+                            <h1 style="color:#ef4444; margin-bottom:20px;">Security Violation Detected</h1>
+                            <p>Unauthorized access attempt logged.</p>
+                            <p style="margin-top:20px; color:#9ca3af;">Unauthorized use is unlawful and prohibited</p>
+                            <p style="margin-top:10px; color:#9ca3af;">All content has been removed for security reasons.</p>
+                        </div>
+                    </div>
+                `;
+                document.body.style.overflow = 'hidden';
+                observer.disconnect();
+                throw new Error("Security violation detected");
+            }
+        });
+    });
+
+    // Start observing the document
+    observer.observe(document.body, {
+        childList: true,
+        subtree: true,
+        attributes: false,
+        characterData: false
+    });
+
+    // Disable right-click
+    document.addEventListener('contextmenu', function(e) {
+        if (!e.target.matches('input, textarea')) {
+            e.preventDefault();
+            showToast('Right-click disabled for security', 'error');
+        }
+    });
+
+    // Prevent dev tools but allow typing in inputs
+    document.addEventListener('keydown', function(e) {
+        const isInput = e.target.matches('input, textarea, [contenteditable]');
+        
+        // Allow normal typing in inputs
+        if (isInput) {
+            return true;
+        }
+        
+        // Block dev tools shortcuts
+        if (e.key === 'F12' || 
+            (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) ||
+            (e.metaKey && e.altKey && e.key === 'I')) {
+            e.preventDefault();
+            showToast('Developer tools are disabled', 'error');
+        }
+    });
+
+    // Disable scrolling and interaction (except for form inputs)
+    document.body.classList.add('password-protected');
+    const preventDefaultScroll = function(e) {
+        if (passwordProtection.style.display !== 'none' && !e.target.matches('input, textarea, select, button')) {
+            e.preventDefault();
+            e.stopPropagation();
+            return false;
+        }
+    };
+
+    const scrollEvents = ['wheel', 'touchmove', 'scroll'];
+    scrollEvents.forEach(function(event) {
+        document.addEventListener(event, preventDefaultScroll, {passive: false});
+    });
+
+    // Check if user is remembered (pre-fill form)
+    if (localStorage.getItem('remembered') === 'true') {
+        document.getElementById('email').value = localStorage.getItem('rememberedEmail') || '';
+        document.getElementById('password').value = localStorage.getItem('rememberedPassword') || '';
+        document.getElementById('remember-me').checked = true;
+    }
+
+    // Login form submission
+    document.getElementById('password-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const rememberMe = document.getElementById('remember-me').checked;
+        
+        if (email === 'chef@farmesilla.com' && password === 'FARM1840!') {
+            // Set last login time (current timestamp)
+            localStorage.setItem('lastLogin', new Date().getTime().toString());
+            
+            // Remember user if checkbox is checked
+            if (rememberMe) {
+                localStorage.setItem('remembered', 'true');
+                localStorage.setItem('rememberedEmail', email);
+                localStorage.setItem('rememberedPassword', password);
+            } else {
+                localStorage.removeItem('remembered');
+                localStorage.removeItem('rememberedEmail');
+                localStorage.removeItem('rememberedPassword');
+            }
+            
+            // Correct credentials - grant access
+            passwordProtection.style.opacity = '0';
+            setTimeout(() => {
+                passwordProtection.style.display = 'none';
+                if (mainContent) mainContent.classList.remove('hidden');
+                document.body.classList.remove('password-protected');
+                
+                // Remove scroll prevention
+                scrollEvents.forEach(function(event) {
+                    document.removeEventListener(event, preventDefaultScroll, {passive: false});
+                });
+                
+                // Disconnect the observer after successful auth
+                observer.disconnect();
+            }, 300);
+        } else {
+            showToast('Incorrect email or password. Please try again.', 'error');
+        }
+    });
+
+    // Periodically check if password protection element still exists
+    setInterval(() => {
+        if (!document.getElementById('password-protection') && passwordProtection.style.display !== 'none') {
+            document.body.innerHTML = `
+                <div style="display:flex; justify-content:center; align-items:center; height:100vh; background:#171717; color:white; font-family:sans-serif; text-align:center; padding:20px;">
+                    <div>
+                        <h1 style="color:#ef4444; margin-bottom:20px;">Security Breach Detected</h1>
+                        <p>Unauthorized use is unlawful and prohibited</p>
+                        <p style="margin-top:20px; color:#9ca3af;">Page content has been locked due to security violations.</p>
+                    </div>
+                </div>
+            `;
+            document.body.style.overflow = 'hidden';
+            observer.disconnect();
+            throw new Error("Security breach detected");
+        }
+    }, 1000);
+})();
+</script>
     <script>
         // Configuration
         const CONFIG = {
