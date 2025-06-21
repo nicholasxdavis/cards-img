@@ -1,0 +1,30 @@
+{
+  "month": "April",
+  "year": 2026,
+  "events": [
+    {
+      "title": "Live Jazz Night",
+      "date": "2025-06-15",
+      "time": "6:00 PM - 9:00 PM",
+      "location": "Main Courtyard",
+      "description": "Enjoy an evening of smooth jazz with The Mesilla Trio featuring special guest vocalist Maria Sanchez. $10 cover includes complimentary appetizers.",
+      "type": "today"
+    },
+    {
+      "title": "Farmers Market",
+      "date": "2025-06-22",
+      "time": "9:00 AM - 2:00 PM",
+      "location": "Front Lawn",
+      "description": "Local organic produce & artisan goods",
+      "type": "upcoming"
+    },
+    {
+      "title": "Wine & Paint",
+      "date": "2025-06-29",
+      "time": "5:30 PM",
+      "location": "Event Room",
+      "description": "Guided painting with local wines ($45)",
+      "type": "upcoming"
+    }
+  ]
+}
