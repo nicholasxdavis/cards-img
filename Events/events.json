@@ -23,6 +23,30 @@
       "location": "Event Room",
       "description": "Guided painting with local wines ($45)",
       "type": "upcoming"
+    },
+    {
+      "title": "Summer Movie Night",
+      "date": "2025-07-05",
+      "time": "8:00 PM",
+      "location": "Outdoor Amphitheater",
+      "description": "Bring a blanket and enjoy a family-friendly film under the stars. Popcorn provided!",
+      "type": "upcoming"
+    },
+    {
+      "title": "Sunrise Yoga",
+      "date": "2025-07-08",
+      "time": "6:00 AM",
+      "location": "Rooftop Garden",
+      "description": "Start your day with a peaceful yoga session. Mats provided.",
+      "type": "upcoming"
+    },
+    {
+      "title": "Cooking Demo: Salsa Night",
+      "date": "2025-07-12",
+      "time": "4:00 PM - 6:00 PM",
+      "location": "Community Kitchen",
+      "description": "Learn how to make authentic salsas with Chef Lupe. Samples included.",
+      "type": "upcoming"
     }
   ]
 }
