@@ -3,7 +3,7 @@
   "year": 2026,
   "events": [
     {
-      "title": "Live Jazz Night",
+      "title": "Test Jazz Night",
       "date": "2025-06-15",
       "time": "6:00 PM - 9:00 PM",
       "location": "Main Courtyard",
@@ -11,7 +11,7 @@
       "type": "today"
     },
     {
-      "title": "Farmers Market",
+      "title": "Test Market",
       "date": "2025-06-22",
       "time": "9:00 AM - 2:00 PM",
       "location": "Front Lawn",
@@ -19,7 +19,7 @@
       "type": "upcoming"
     },
     {
-      "title": "Wine & Paint",
+      "title": "Test & Paint",
       "date": "2025-06-29",
       "time": "5:30 PM",
       "location": "Event Room",
