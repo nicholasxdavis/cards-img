@@ -28,10 +28,10 @@
       "time": "5:30 PM",
       "location": "Event Room",
       "description": "Guided painting with local wines ($45)",
-      "type": "upcoming",
-      "options": "",
-      "ticketlink": "",
-      "event_details": ""
+      "type": "today",
+      "options": "tickets",
+      "ticketlink": "https://www.eventbrite.com/e/the-macaroni-cheese-festival-of-the-four-corners-tickets-1253987734069?aff=ehometext",
+      "event_details": "Details etc like is this event 21+ is there parking? etc"
     },
     {
       "title": "Summer Movie Night",
