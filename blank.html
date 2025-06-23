@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cards MMS - Catering Menu Management</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script>
+        // Initialize jsPDF
+        const { jsPDF } = window.jspdf;
+        
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#4ade80',
+                        'primary-dark': '#22c55e',
+                        secondary: '#f6f9fc',
+                        dark: '#171717',
+                        light: '#ffffff',
+                        gray: {
+                            100: '#f8f9fa',
+                            200: '#e9ecef',
+                            300: '#dee2e6',
+                            400: '#ced4da',
+                            500: '#adb5bd',
+                            600: '#058E3F',
+                            700: '#04773B',
+                            800: '#1f2937',
+                            900: '#171717',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'card': '0 2px 4px rgba(0,0,0,.04), 0 8px 16px rgba(0,0,0,.08)',
+                        'button': '0 4px 6px rgba(50,50,93,.11), 0 1px 3px rgba(0,0,0,.08)',
+                        'button-hover': '0 7px 14px rgba(50,50,93,.1), 0 3px 6px rgba(0,0,0,.08)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        .password-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(23, 23, 23, 0.96);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+        }
+        
+        .password-box {
+            background: white;
+            border-radius: 12px;
+            padding: 2.5rem;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            transform: translateY(-20px);
+            opacity: 0;
+            animation: slideUp 0.4s ease-out forwards;
+        }
+        
+        @keyframes slideUp {
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Menu management specific styles */
+        .menu-item-card {
+            transition: all 0.2s ease;
+        }
+        
+        .menu-item-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .modal-overlay {
+            background-color: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+        }
+        
+        .modal-content {
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .dietary-tag {
+            transition: all 0.2s ease;
+        }
+        
+        .dietary-tag:hover {
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Password Protection -->
+    <div id="password-protection" class="password-container">
+        <div class="password-box">
+            <div class="text-center mb-6">
+               <div class="flex justify-center mb-4">
+                  <a href="https://nicholasxdavis.github.io/cards-mms/#">
+                    <img src="assets/logo_black.png" alt="Cards Logo" class="h-14">
+                  </a>
+               </div>
+                <h2 class="text-2xl font-bold text-dark mb-1">Catering Menu Management</h2>
+                <p class="text-gray-600">Enter credentials to continue</p>
+            </div>
+            
+            <form id="password-form" class="space-y-4">
+                <div>
+                    <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                    <input type="email" id="email" required
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary">
+                </div>
+                
+                <div>
+                    <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                    <input type="password" id="password" required
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary">
+                </div>
+                
+                <div class="remember-me">
+                    <input type="checkbox" id="remember-me" name="remember-me">
+                    <label for="remember-me" class="text-sm text-gray-700">Remember me</label>
+                </div>
+                
+                <button type="submit" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                    Continue
+                </button>
+            </form>
+            
+            <div class="mt-6 text-center text-xs text-gray-500">
+                Unauthorized use is unlawful and prohibited
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content (hidden until authenticated) -->
+    <div id="main-content" class="hidden main-content">
+        <!-- Modern Header -->
+        <header class="bg-dark text-white">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center py-4">
+                    <!-- Logo Section -->
+                    <div class="flex items-center space-x-4">
+                        <a href="https://nicholasxdavis.github.io/cards-mms/#">
+                            <img src="assets/logo.png" alt="Cards Logo" class="h-10">
+                        </a>
+                    </div>
+
+                    <!-- Navigation Buttons -->
+                    <div class="flex items-center space-x-3">
+                        <button id="submit-ticket-btn" class="bg-primary hover:bg-primary-dark px-3 py-1.5 rounded-md text-sm font-medium transition-colors">
+                            <i class="fas fa-ticket-alt mr-1"></i> Submit Ticket
+                        </button>
+
+                        <button id="uploads-btn" class="bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-md text-sm font-medium transition-colors">
+                            <i class="fas fa-images mr-1"></i> Uploads
+                        </button>
+
+                        <a href="menu.html" class="bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-md text-sm font-medium transition-colors">
+                            <i class="fas fa-list-alt mr-1"></i> Manage Menus
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Dashboard Content -->
+        <main class="flex-1 py-8">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center mb-8">
+                    <div>
+                        <h1 class="text-3xl font-bold text-gray-900">Catering Menu Management</h1>
+                        <p class="text-gray-600 mt-2">Manage your catering menu items and categories</p>
+                    </div>
+                    <button id="add-item-btn" class="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-md shadow-sm text-sm font-medium flex items-center">
+                        <i class="fas fa-plus mr-2"></i> Add New Item
+                    </button>
+                </div>
+
+                <!-- Menu Items Dashboard -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                    <div class="p-6 border-b border-gray-200">
+                        <div class="flex justify-between items-center">
+                            <h2 class="text-lg font-semibold text-gray-900">Menu Items</h2>
+                            <div class="relative">
+                                <input type="text" id="search-items" placeholder="Search items..." 
+                                       class="pl-8 pr-4 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary">
+                                <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="items-list" class="divide-y divide-gray-200">
+                        <!-- Items will be loaded here dynamically -->
+                        <div class="p-8 text-center text-gray-500">
+                            <i class="fas fa-spinner fa-spin text-2xl mb-2"></i>
+                            <p>Loading menu items...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Item Modal -->
+        <div id="item-modal" class="fixed inset-0 z-50 hidden modal-overlay">
+            <div class="flex items-center justify-center min-h-screen p-4">
+                <div class="bg-white rounded-xl shadow-2xl w-full max-w-4xl modal-content">
+                    <div class="flex justify-between items-center p-6 border-b border-gray-200">
+                        <h2 id="modal-title" class="text-xl font-bold text-gray-900">Add New Item</h2>
+                        <button id="close-modal" class="text-gray-400 hover:text-gray-600 text-2xl">
+                            &times;
+                        </button>
+                    </div>
+                    
+                    <form id="item-form" class="p-6">
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <!-- Basic Info -->
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Item Name *</label>
+                                    <input type="text" id="item-name" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary" required>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Price (for 5 people) *</label>
+                                    <input type="number" id="item-price" step="0.01" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary" required>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Category *</label>
+                                    <div class="space-y-2">
+                                        <select id="item-category" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary" onchange="handleCategoryChange(this)">
+                                            <option value="">Select Category</option>
+                                            <option value="tortas">Tortas & Wraps</option>
+                                            <option value="salads">Salads</option>
+                                            <option value="bowls">Bowls</option>
+                                            <option value="enchiladas">Enchiladas</option>
+                                            <option value="sides">Sides</option>
+                                            <option value="desserts">Desserts</option>
+                                            <option value="beverages">Beverages</option>
+                                            <option value="custom">+ Create New Category</option>
+                                        </select>
+                                        <input type="text" id="custom-category" placeholder="Enter new category name" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary hidden">
+                                    </div>
+                                </div>
+                                
+                                <!-- Portion Visibility -->
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Portion Visibility *</label>
+                                    <div class="space-y-2">
+                                        <label class="flex items-center">
+                                            <input type="checkbox" id="portion-5" class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded" checked>
+                                            <span class="ml-2 text-sm text-gray-700">Show for 5 people portions</span>
+                                        </label>
+                                        <label class="flex items-center">
+                                            <input type="checkbox" id="portion-10" class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded">
+                                            <span class="ml-2 text-sm text-gray-700">Show for 10 people portions</span>
+                                        </label>
+                                        <label class="flex items-center">
+                                            <input type="checkbox" id="portion-20" class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded">
+                                            <span class="ml-2 text-sm text-gray-700">Show for 20 people portions</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Image URL</label>
+                                    <input type="url" id="item-image-url" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary">
+                                    <a href="http://nicholasxdavis.github.io/cards-img/index.html" target="_blank" class="inline-block mt-2 text-sm text-primary hover:text-primary-dark underline">
+                                        Upload IMGs into URLs here
+                                    </a>
+                                </div>
+                                
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="item-available" class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded">
+                                    <label for="item-available" class="ml-2 block text-sm text-gray-700">Available</label>
+                                </div>
+                            </div>
+                            
+                            <!-- Description and Tags -->
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                                    <textarea id="item-description" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"></textarea>
+                                </div>
+                                
+                                <!-- Dietary Tags -->
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Dietary Tags</label>
+                                    <div class="space-y-2">
+                                        <label class="flex items-center">
+                                            <input type="checkbox" id="tag-gf" class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded">
+                                            <span class="ml-2 text-sm text-gray-700">Gluten Free (GF)</span>
+                                        </label>
+                                        <label class="flex items-center">
+                                            <input type="checkbox" id="tag-v" class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded">
+                                            <span class="ml-2 text-sm text-gray-700">Vegan (V)</span>
+                                        </label>
+                                        <label class="flex items-center">
+                                            <input type="checkbox" id="tag-n" class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded">
+                                            <span class="ml-2 text-sm text-gray-700">Contains Nuts (N)</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Add-ons Section -->
+                        <div class="mt-6 border-t pt-6">
+                            <div class="flex justify-between items-center mb-4">
+                                <h4 class="text-lg font-medium text-gray-900">Add-ons</h4>
+                                <button type="button" id="add-addon-btn" class="bg-primary hover:bg-primary-dark text-white px-3 py-1.5 rounded-md shadow-sm text-sm font-medium">
+                                    <i class="fas fa-plus mr-1"></i> Add Add-on
+                                </button>
+                            </div>
+                            <div id="addons-container" class="space-y-3">
+                                <!-- Add-ons will be dynamically added here -->
+                                <p class="text-sm text-gray-500 italic">No add-ons added yet</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex justify-end space-x-4 mt-8 pt-6 border-t">
+                            <button type="button" id="cancel-item" class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                                Cancel
+                            </button>
+                            <button type="submit" id="save-item" class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                                Save Item
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modern Footer -->
+        <footer class="bg-white border-t border-gray-200 mt-auto">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                <div class="md:flex md:items-center md:justify-between">
+                    <div class="flex justify-center md:order-2 space-x-6">
+                        <p class="text-xs text-gray-500">
+                            <span class="block md:inline mt-1 md:mt-0">A Product of Blacnova.</span>
+                        </p>
+                    </div>
+                    <div class="mt-8 md:mt-0 md:order-1">
+                        <p class="text-center text-xs text-gray-500">
+                            &copy; 2025 Cards MMS. All rights reserved.
+                            <span class="block md:inline mt-1 md:mt-0">Unauthorized use is unlawful and prohibited.</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </footer>
+
+        <!-- Toast -->
+        <div id="toast" class="fixed bottom-6 right-6 hidden bg-dark text-white text-sm px-4 py-3 rounded-lg shadow-lg flex items-start">
+            <i class="fas fa-check-circle mt-0.5 mr-2 text-green-400"></i>
+            <span id="toast-msg"></span>
+        </div>
+    </div>
+
+<script>
+    // Initialize Supabase
+    const SUPABASE_URL = 'https://genodqiyehczgiqgxekv.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdlbm9kcWl5ZWhjemdpcWd4ZWt2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkzMjE4NDUsImV4cCI6MjA2NDg5Nzg0NX0.DFtdiPpjtSvWBqb92IQ1catvkhOGAu0n1NEIPj4g91E';
+
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    let currentUser = null;
+    let menuItems = [];
+    let editingItemId = null;
+    let currentAddons = [];
+    let availableCategories = ['tortas', 'salads', 'bowls', 'enchiladas', 'sides', 'desserts', 'beverages'];
+
+    // Initialize everything
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('Initializing application...');
+        initializeAuth();
+        setupEventListeners();
+        loadAvailableCategories(); // Load categories when app starts
+        
+        // Check for saved credentials
+        if (localStorage.getItem('rememberMe') === 'true') {
+            const savedEmail = localStorage.getItem('email');
+            const savedPassword = localStorage.getItem('password');
+            if (savedEmail && savedPassword) {
+                document.getElementById('email').value = savedEmail;
+                document.getElementById('password').value = savedPassword;
+                document.getElementById('remember-me').checked = true;
+            }
+        }
+    });
+
+    // Load unique categories from database
+    async function loadAvailableCategories() {
+        try {
+            const { data, error } = await supabase
+                .from('menu_items')
+                .select('category')
+                .not('category', 'is', null);
+
+            if (error) throw error;
+
+            // Extract unique categories from existing items
+            const uniqueCategories = [...new Set(data.map(item => item.category))];
+            
+            // Combine with default categories and remove duplicates
+            availableCategories = [...new Set([...availableCategories, ...uniqueCategories])];
+            
+            // Update the category dropdown
+            updateCategoryDropdown();
+        } catch (error) {
+            console.error('Error loading categories:', error);
+            showToast('Failed to load categories', 'error');
+        }
+    }
+
+    // Update category dropdown with available categories
+    function updateCategoryDropdown() {
+        const categorySelect = document.getElementById('item-category');
+        if (!categorySelect) return;
+
+        const currentValue = categorySelect.value;
+        
+        // Clear existing options except the first one and custom option
+        categorySelect.innerHTML = `
+            <option value="">Select Category</option>
+            ${availableCategories.map(cat => {
+                // Format category name for display (replace underscores with spaces and capitalize)
+                const displayName = cat.replace(/_/g, ' ')
+                                      .split(' ')
+                                      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                                      .join(' ');
+                return `<option value="${cat}">${displayName}</option>`;
+            }).join('')}
+            <option value="custom">+ Create New Category</option>
+        `;
+        
+        // Restore selection if it still exists
+        if (currentValue && availableCategories.includes(currentValue)) {
+            categorySelect.value = currentValue;
+        }
+    }
+
+    // Auth functions
+    function initializeAuth() {
+        // Check current session
+        supabase.auth.getSession().then(({ data: { session } }) => {
+            if (session) {
+                currentUser = session.user;
+                showMainContent();
+                loadMenuItemsForDashboard();
+            }
+        });
+
+        // Listen for auth changes
+        supabase.auth.onAuthStateChange((event, session) => {
+            if (event === 'SIGNED_IN') {
+                currentUser = session.user;
+                showMainContent();
+                loadMenuItemsForDashboard();
+            } else if (event === 'SIGNED_OUT') {
+                currentUser = null;
+                hideMainContent();
+            }
+        });
+
+        // Password form submission
+        document.getElementById('password-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const rememberMe = document.getElementById('remember-me').checked;
+
+            // Save credentials if "Remember me" is checked
+            if (rememberMe) {
+                localStorage.setItem('email', email);
+                localStorage.setItem('password', password);
+                localStorage.setItem('rememberMe', 'true');
+            } else {
+                localStorage.removeItem('email');
+                localStorage.removeItem('password');
+                localStorage.setItem('rememberMe', 'false');
+            }
+
+            // Authenticate with Supabase
+            supabase.auth.signInWithPassword({ email, password })
+                .then(({ data, error }) => {
+                    if (error) {
+                        showToast('Authentication failed. Please check your credentials.', 'error');
+                        throw error;
+                    }
+                    currentUser = data.user;
+                    showMainContent();
+                    loadMenuItemsForDashboard();
+                })
+                .catch(error => {
+                    console.error('Login error:', error);
+                });
+        });
+    }
+
+    function showMainContent() {
+        document.getElementById('password-protection').style.display = 'none';
+        document.getElementById('main-content').classList.remove('hidden');
+    }
+
+    function hideMainContent() {
+        document.getElementById('password-protection').style.display = 'flex';
+        document.getElementById('main-content').classList.add('hidden');
+    }
+
+    // Menu loading functions
+    async function loadMenuItemsForDashboard() {
+        try {
+            showLoading(true);
+            const { data, error } = await supabase
+                .from('menu_items')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            if (error) {
+                console.error('Error loading dashboard items:', error);
+                showToast('Failed to load menu items', 'error');
+                return;
+            }
+
+            displayDashboardItems(data || []);
+        } catch (err) {
+            console.error('Failed to load dashboard items:', err);
+            showToast('Failed to load menu items', 'error');
+        } finally {
+            showLoading(false);
+        }
+    }
+
+    function showLoading(show) {
+        const itemsList = document.getElementById('items-list');
+        if (show) {
+            itemsList.innerHTML = `
+                <div class="p-8 text-center text-gray-500">
+                    <i class="fas fa-spinner fa-spin text-2xl mb-2"></i>
+                    <p>Loading menu items...</p>
+                </div>
+            `;
+        }
+    }
+
+    function displayDashboardItems(items) {
+        const container = document.getElementById('items-list');
+        if (!container) return;
+
+        if (items.length === 0) {
+            container.innerHTML = `
+                <div class="p-8 text-center text-gray-500">
+                    <i class="fas fa-utensils text-2xl mb-2"></i>
+                    <p>No menu items found</p>
+                    <button id="add-first-item" class="mt-4 bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-md shadow-sm text-sm font-medium">
+                        Add Your First Item
+                    </button>
+                </div>
+            `;
+            
+            document.getElementById('add-first-item').addEventListener('click', () => {
+                showItemModal();
+            });
+            return;
+        }
+
+        container.innerHTML = items.map(item => {
+            const addons = item.addons || [];
+            const dietaryTags = item.dietary_tags || [];
+            const portionVisibility = item.portion_visibility || { show_for_5: true, show_for_10: true, show_for_20: true };
+            
+            return `
+                <div class="p-6 menu-item-card hover:bg-gray-50">
+                    <div class="flex items-start justify-between">
+                        <div class="flex-1">
+                            <div class="flex items-center gap-4 mb-3">
+                                <img src="${item.image_url || 'assets/farm.jpg'}" alt="${item.name}" class="w-16 h-16 object-cover rounded-lg">
+                                <div>
+                                    <h3 class="text-lg font-semibold text-gray-900">${item.name}</h3>
+                                    <p class="text-sm text-gray-600">${item.description || ''}</p>
+                                    <div class="flex items-center gap-4 mt-1">
+                                        <span class="text-lg font-bold text-green-600">$${item.price}</span>
+                                        <span class="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded">${item.category}</span>
+                                        <span class="text-sm ${item.is_available ? 'text-green-600' : 'text-red-600'}">
+                                            ${item.is_available ? '● Available' : '● Unavailable'}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <span class="text-sm text-gray-700 font-medium">Portion Visibility: </span>
+                                <span class="text-sm text-gray-600">
+                                    ${portionVisibility.show_for_5 ? '5' : ''}${portionVisibility.show_for_5 && (portionVisibility.show_for_10 || portionVisibility.show_for_20) ? ', ' : ''}
+                                    ${portionVisibility.show_for_10 ? '10' : ''}${portionVisibility.show_for_10 && portionVisibility.show_for_20 ? ', ' : ''}
+                                    ${portionVisibility.show_for_20 ? '20' : ''}
+                                </span>
+                            </div>
+                            
+                            ${dietaryTags.length > 0 ? `
+                                <div class="mb-3">
+                                    <span class="text-sm text-gray-700 font-medium">Dietary Tags: </span>
+                                    ${dietaryTags.map(tag => `
+                                        <span class="dietary-tag bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full mr-1">
+                                            ${tag.toUpperCase()}
+                                        </span>
+                                    `).join('')}
+                                </div>
+                            ` : ''}
+                            
+                            ${addons.length > 0 ? `
+                                <div class="mb-3">
+                                    <span class="text-sm text-gray-700 font-medium">Add-ons: </span>
+                                    <div class="text-sm text-gray-600">
+                                        ${addons.map(addon => `${addon.name} (+$${addon.price})`).join(', ')}
+                                    </div>
+                                </div>
+                            ` : ''}
+                        </div>
+                        
+                        <div class="flex gap-2">
+                            <button onclick="editItem('${item.id}')" class="bg-gray-800 hover:bg-gray-900 text-white px-3 py-1.5 rounded-md shadow-sm text-sm font-medium">
+                                <i class="fas fa-edit mr-1"></i> Edit
+                            </button>
+                            <button onclick="toggleItemAvailability('${item.id}', ${!item.is_available})" 
+                                    class="px-3 py-1.5 rounded-md shadow-sm text-sm font-medium ${item.is_available ? 'bg-gray-800 hover:bg-gray-900 text-white' : 'bg-gray-800 hover:bg-gray-900 text-white'}">
+                                ${item.is_available ? '<i class="fas fa-eye-slash mr-1"></i> Disable' : '<i class="fas fa-eye mr-1"></i> Enable'}
+                            </button>
+                            <button onclick="deleteItem('${item.id}')" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-md shadow-sm text-sm font-medium">
+                                <i class="fas fa-trash mr-1"></i> Delete
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    // Item Modal Functions
+    function showItemModal(item = null) {
+        const modalTitle = document.getElementById('modal-title');
+        const modal = document.getElementById('item-modal');
+        
+        editingItemId = item ? item.id : null;
+        modalTitle.textContent = item ? 'Edit Menu Item' : 'Add New Menu Item';
+        
+        // Reset form
+        document.getElementById('item-form').reset();
+        currentAddons = [];
+        updateAddonsDisplay();
+        
+        if (item) {
+            // Populate form with item data
+            document.getElementById('item-name').value = item.name || '';
+            document.getElementById('item-price').value = item.price || '';
+            document.getElementById('item-category').value = item.category || '';
+            document.getElementById('item-image-url').value = item.image_url || '';
+            document.getElementById('item-description').value = item.description || '';
+            document.getElementById('item-available').checked = item.is_available !== false;
+            
+            // Set portion visibility
+            const portionVisibility = item.portion_visibility || { show_for_5: true, show_for_10: true, show_for_20: true };
+            document.getElementById('portion-5').checked = portionVisibility.show_for_5;
+            document.getElementById('portion-10').checked = portionVisibility.show_for_10;
+            document.getElementById('portion-20').checked = portionVisibility.show_for_20;
+            
+            // Set dietary tags
+            const dietaryTags = item.dietary_tags || [];
+            document.getElementById('tag-gf').checked = dietaryTags.includes('gf');
+            document.getElementById('tag-v').checked = dietaryTags.includes('v');
+            document.getElementById('tag-n').checked = dietaryTags.includes('n');
+            
+            // Set addons
+            currentAddons = item.addons || [];
+            updateAddonsDisplay();
+        }
+        
+        modal.classList.remove('hidden');
+    }
+
+    function hideItemModal() {
+        document.getElementById('item-modal').classList.add('hidden');
+        editingItemId = null;
+        currentAddons = [];
+    }
+
+    function addAddon() {
+        currentAddons.push({ name: '', price: 0 });
+        updateAddonsDisplay();
+    }
+
+    function removeAddon(index) {
+        currentAddons.splice(index, 1);
+        updateAddonsDisplay();
+    }
+
+    function updateAddonsDisplay() {
+        const container = document.getElementById('addons-container');
+        
+        if (currentAddons.length === 0) {
+            container.innerHTML = '<p class="text-sm text-gray-500 italic">No add-ons added yet</p>';
+            return;
+        }
+        
+        container.innerHTML = currentAddons.map((addon, index) => `
+            <div class="flex gap-3 items-center bg-gray-50 p-3 rounded-md">
+                <input type="text" placeholder="Add-on name" value="${addon.name}" 
+                       onchange="currentAddons[${index}].name = this.value"
+                       class="flex-1 px-3 py-1.5 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary text-sm">
+                <input type="number" placeholder="Price" step="0.01" value="${addon.price}" 
+                       onchange="currentAddons[${index}].price = parseFloat(this.value) || 0"
+                       class="w-24 px-3 py-1.5 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary text-sm">
+                <button type="button" onclick="removeAddon(${index})" 
+                        class="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-md shadow-sm text-sm font-medium">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        `).join('');
+    }
+
+    // Event listeners setup
+    function setupEventListeners() {
+        // Add item button
+        document.getElementById('add-item-btn').addEventListener('click', () => showItemModal());
+        
+        // Close modal button
+        document.getElementById('close-modal').addEventListener('click', hideItemModal);
+        
+        // Cancel button in form
+        document.getElementById('cancel-item').addEventListener('click', hideItemModal);
+        
+        // Add addon button
+        document.getElementById('add-addon-btn').addEventListener('click', addAddon);
+        
+        // Form submission
+        document.getElementById('item-form').addEventListener('submit', handleSaveItem);
+        
+        // Search functionality
+        document.getElementById('search-items').addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const items = document.querySelectorAll('.menu-item-card');
+            
+            items.forEach(item => {
+                const name = item.querySelector('h3').textContent.toLowerCase();
+                const description = item.querySelector('p').textContent.toLowerCase();
+                
+                if (name.includes(searchTerm) || description.includes(searchTerm)) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        });
+
+        // Handle category selection change
+        document.getElementById('item-category').addEventListener('change', function() {
+            handleCategoryChange(this);
+        });
+    }
+
+    // Handle category selection
+    function handleCategoryChange(select) {
+        const customInput = document.getElementById('custom-category');
+        if (select.value === 'custom') {
+            customInput.classList.remove('hidden');
+            customInput.focus();
+        } else {
+            customInput.classList.add('hidden');
+            customInput.value = '';
+        }
+    }
+
+    // Menu management handlers
+    async function handleSaveItem(e) {
+        e.preventDefault();
+        
+        const name = document.getElementById('item-name').value;
+        const price = parseFloat(document.getElementById('item-price').value);
+        let category = document.getElementById('item-category').value;
+        const customCategory = document.getElementById('custom-category').value.trim();
+        const imageUrl = document.getElementById('item-image-url').value;
+        const description = document.getElementById('item-description').value;
+        const isAvailable = document.getElementById('item-available').checked;
+        
+        // Get portion visibility settings
+        const portionVisibility = {
+            show_for_5: document.getElementById('portion-5').checked,
+            show_for_10: document.getElementById('portion-10').checked,
+            show_for_20: document.getElementById('portion-20').checked
+        };
+        
+        // Handle custom category
+        if (category === 'custom' && customCategory) {
+            // Replace spaces with underscores for consistent storage
+            category = customCategory.replace(/\s+/g, '_').toLowerCase();
+            
+            // Add to available categories for future use
+            if (!availableCategories.includes(category)) {
+                availableCategories.push(category);
+                updateCategoryDropdown();
+            }
+        } else if (category === 'custom' && !customCategory) {
+            showToast('Please enter a category name or select an existing category', 'error');
+            return;
+        }
+        
+        // Get dietary tags
+        const dietaryTags = [];
+        if (document.getElementById('tag-gf').checked) dietaryTags.push('gf');
+        if (document.getElementById('tag-v').checked) dietaryTags.push('v');
+        if (document.getElementById('tag-n').checked) dietaryTags.push('n');
+        
+        // Validate addons
+        const validAddons = currentAddons.filter(addon => addon.name.trim() !== '');
+
+        if (!name || !price || !category) {
+            showToast('Please fill in all required fields', 'error');
+            return;
+        }
+
+        try {
+            const itemData = {
+                name,
+                price,
+                category,
+                description,
+                image_url: imageUrl,
+                is_available: isAvailable,
+                dietary_tags: dietaryTags,
+                addons: validAddons,
+                portion_visibility: portionVisibility
+            };
+            
+            let error;
+            if (editingItemId) {
+                ({ error } = await supabase
+                    .from('menu_items')
+                    .update(itemData)
+                    .eq('id', editingItemId));
+            } else {
+                ({ error } = await supabase
+                    .from('menu_items')
+                    .insert([itemData]));
+            }
+
+            if (error) throw error;
+            
+            showToast(`Item ${editingItemId ? 'updated' : 'added'} successfully!`, 'success');
+            hideItemModal();
+            
+            // Reload items and categories
+            loadMenuItemsForDashboard();
+            loadAvailableCategories();
+        } catch (error) {
+            console.error(`Failed to ${editingItemId ? 'update' : 'add'} item:`, error);
+            showToast(`Failed to ${editingItemId ? 'update' : 'add'} item: ${error.message}`, 'error');
+        }
+    }
+
+    // Edit functionality
+    function editItem(itemId) {
+        const item = menuItems.find(item => item.id === itemId);
+        
+        if (!item) {
+            // If not found in menuItems, fetch from database
+            supabase.from('menu_items').select('*').eq('id', itemId).single()
+                .then(({ data, error }) => {
+                    if (error) {
+                        console.error('Error fetching item:', error);
+                        showToast('Error loading item details', 'error');
+                        return;
+                    }
+                    showItemModal(data);
+                });
+        } else {
+            showItemModal(item);
+        }
+    }
+
+    async function toggleItemAvailability(id, isAvailable) {
+        try {
+            const { error } = await supabase
+                .from('menu_items')
+                .update({ is_available: isAvailable })
+                .eq('id', id);
+
+            if (error) throw error;
+            
+            showToast(`Item ${isAvailable ? 'enabled' : 'disabled'} successfully`, 'success');
+            loadMenuItemsForDashboard();
+        } catch (error) {
+            console.error('Failed to update item availability:', error);
+            showToast('Failed to update item availability', 'error');
+        }
+    }
+
+    async function deleteItem(id) {
+        if (!confirm('Are you sure you want to delete this item? This action cannot be undone.')) return;
+
+        try {
+            const { error } = await supabase
+                .from('menu_items')
+                .delete()
+                .eq('id', id);
+
+            if (error) throw error;
+            
+            showToast('Item deleted successfully', 'success');
+            loadMenuItemsForDashboard();
+            loadAvailableCategories(); // Refresh categories after deletion
+        } catch (error) {
+            console.error('Failed to delete item:', error);
+            showToast('Failed to delete item', 'error');
+        }
+    }
+
+    // Toast notification
+    function showToast(message, type = 'success') {
+        const toast = document.getElementById('toast');
+        const toastMsg = document.getElementById('toast-msg');
+        
+        // Set toast color based on type
+        if (type === 'error') {
+            toast.className = 'fixed bottom-6 right-6 bg-red-600 text-white text-sm px-4 py-3 rounded-lg shadow-lg flex items-start';
+            toast.querySelector('i').className = 'fas fa-exclamation-circle mt-0.5 mr-2 text-white';
+        } else {
+            toast.className = 'fixed bottom-6 right-6 bg-dark text-white text-sm px-4 py-3 rounded-lg shadow-lg flex items-start';
+            toast.querySelector('i').className = 'fas fa-check-circle mt-0.5 mr-2 text-green-400';
+        }
+        
+        toastMsg.textContent = message;
+        toast.classList.remove('hidden');
+        
+        // Hide after 3 seconds
+        setTimeout(() => {
+            toast.classList.add('hidden');
+        }, 3000);
+    }
+
+    // Logout functionality
+    function handleLogout() {
+        supabase.auth.signOut()
+            .then(() => {
+                showToast('Logged out successfully', 'success');
+                hideMainContent();
+            })
+            .catch(error => {
+                console.error('Logout error:', error);
+                showToast('Failed to log out', 'error');
+            });
+    }
+
+    // Make functions available globally
+    window.editItem = editItem;
+    window.toggleItemAvailability = toggleItemAvailability;
+    window.deleteItem = deleteItem;
+    window.removeAddon = removeAddon;
+    window.handleCategoryChange = handleCategoryChange;
+</script>
+</body>
+</html>
