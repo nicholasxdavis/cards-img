@@ -1,0 +1,1132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cards MMS - Live-Demo</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+
+
+</head>
+
+
+
+
+
+
+
+
+
+
+
+
+<header class="bg-dark text-white">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center py-4">
+                    <div class="flex items-center space-x-4">
+                        <a href="https://nicholasxdavis.github.io/cards-mms/#">
+                            <img src="assets/logo.png" alt="Cards Logo" class="h-10">
+                        </a>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <a href="https://nicholasxdavis.github.io/cards-mms/" target="_blank">
+    <button id="submit-ticket-btn" class="bg-primary hover:bg-primary-dark px-3 py-1.5 rounded-md text-sm font-medium transition-colors">
+        View Website
+    </button>
+</a>
+
+<a href="https://nicholasxdavis.github.io/cards-mms/#pricing" class="bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-md text-sm font-medium transition-colors">
+    View Pricing
+</a>
+
+                    </div>
+                </div>
+            </div>
+        </header>
+
+
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+        
+        .menu-item-card {
+            transition: all 0.2s ease;
+        }
+        
+        .menu-item-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .edit-modal-container {
+            position: relative;
+        }
+        
+        .edit-modal {
+            transition: all 0.3s ease;
+            opacity: 0;
+            transform: scale(0.95);
+            pointer-events: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 50;
+            background-color: rgba(0,0,0,0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+        }
+        
+        .edit-modal.active {
+            opacity: 1;
+            transform: scale(1);
+            pointer-events: all;
+        }
+        
+        .restaurant-menu-item {
+            transition: all 0.3s ease;
+        }
+        
+        .restaurant-menu-item:hover {
+            transform: translateY(-3px);
+        }
+        
+        .cart-modal-container {
+            position: relative;
+        }
+        
+        .cart-modal {
+            transition: all 0.3s ease;
+            opacity: 0;
+            transform: translateY(20px);
+            pointer-events: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 50;
+            background-color: rgba(0,0,0,0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+        }
+        
+        .cart-modal.active {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: all;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .cart-pulse {
+            animation: pulse 0.5s ease;
+        }
+        
+        .browser-bar {
+            background: linear-gradient(to bottom, #e8e8e8, #d8d8d8);
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid #c0c0c0;
+        }
+        
+        .browser-dots {
+            display: flex;
+            gap: 6px;
+            margin-right: 12px;
+        }
+        
+        .browser-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        
+        .browser-url {
+            flex-grow: 1;
+            background: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            color: #555;
+            border: 1px solid #c0c0c0;
+        }
+        
+        .browser-content {
+            border-bottom-left-radius: 8px;
+            border-bottom-right-radius: 8px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 8px;
+            width: calc(100% - 32px);
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+            margin: 16px;
+        }
+    </style>
+</head>
+<body class="">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-7xl mx-auto mt-10 mb-10">
+        <!-- CMS Panel -->
+        <div class="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden edit-modal-container">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-bold text-gray-800">Menu Items</h2>
+                    <button id="add-item-btn" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium flex items-center">
+                        <i class="fas fa-plus mr-2"></i> Add Item
+                    </button>
+                </div>
+                
+                <div class="relative mb-6">
+                    <input type="text" id="search-items" placeholder="Search items..." 
+                           class="pl-10 pr-4 py-2 border border-gray-300 rounded-md text-sm w-full focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                    <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                </div>
+                
+                <div class="space-y-4" id="menu-items-container">
+                    <!-- Items will be loaded here dynamically -->
+                </div>
+                
+                <div class="mt-8 pt-4 border-t border-gray-200 text-center">
+                    <p class="text-xs text-gray-500">Powered by Cards.</p>
+                </div>
+            </div>
+            
+            <!-- Edit Modal -->
+            <div id="edit-modal" class="edit-modal">
+                <div class="modal-content">
+                    <div class="p-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-bold">Edit Menu Item</h3>
+                            <button id="close-edit-modal" class="text-gray-500 hover:text-gray-700">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        
+                        <form id="edit-item-form" class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Item Name</label>
+                                <input type="text" id="edit-item-name" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500" required>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                                <textarea id="edit-item-desc" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500" required></textarea>
+                            </div>
+                            
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Price</label>
+                                    <input type="number" id="edit-item-price" step="0.01" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500" required>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Portion</label>
+                                    <select id="edit-item-portion" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                                        <option value="5">5 people</option>
+                                        <option value="10">10 people</option>
+                                        <option value="20">20 people</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Image URL</label>
+                                <input type="url" id="edit-item-image" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Dietary Tags</label>
+                                <div class="flex flex-wrap gap-2">
+                                    <label class="inline-flex items-center">
+                                        <input type="checkbox" class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded" value="GF">
+                                        <span class="ml-2 text-sm text-gray-700">GF</span>
+                                    </label>
+                                    <label class="inline-flex items-center">
+                                        <input type="checkbox" class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded" value="V">
+                                        <span class="ml-2 text-sm text-gray-700">V</span>
+                                    </label>
+                                    <label class="inline-flex items-center">
+                                        <input type="checkbox" class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded" value="N">
+                                        <span class="ml-2 text-sm text-gray-700">N</span>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-center">
+                                <input type="checkbox" id="edit-item-available" class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded">
+                                <label for="edit-item-available" class="ml-2 block text-sm text-gray-700">Available</label>
+                            </div>
+                            
+                            <div class="flex justify-end space-x-3 pt-4">
+                                <button type="button" id="cancel-edit" class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                                    Cancel
+                                </button>
+                                <button type="submit" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md text-sm font-medium">
+                                    Save Changes
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Restaurant Preview -->
+        <div class="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden cart-modal-container">
+            <div class="browser-bar">
+                <div class="browser-dots">
+                    <div class="browser-dot bg-red-400"></div>
+                    <div class="browser-dot bg-yellow-400"></div>
+                    <div class="browser-dot bg-green-400"></div>
+                </div>
+                <div class="browser-url">https://lacasaverde.com/menu</div>
+            </div>
+            <div class="browser-content">
+                <div class="bg-gray-900 text-white p-6">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h1 class="text-2xl font-bold">La Casa Verde</h1>
+                            <p class="text-gray-300 mt-1">Authentic Mexican & Healthy Cuisine</p>
+                        </div>
+                        <div class="flex space-x-4 items-center">
+                            <button id="view-cart-btn" class="relative text-white hover:text-gray-300">
+                                <i class="fas fa-shopping-cart text-xl"></i>
+                                <span id="cart-count" class="absolute -top-2 -right-2 bg-green-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center hidden">0</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="p-6">
+                    <div class="flex space-x-4 mb-6 overflow-x-auto pb-2">
+                        <button class="category-filter whitespace-nowrap px-4 py-2 bg-green-600 text-white rounded-full text-sm font-medium" data-category="all">
+                            All Items
+                        </button>
+                        <button class="category-filter whitespace-nowrap px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-full text-sm font-medium" data-category="wraps">
+                            Tortas & Wraps
+                        </button>
+                        <button class="category-filter whitespace-nowrap px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-full text-sm font-medium" data-category="bowls">
+                            Bowls
+                        </button>
+                        <button class="category-filter whitespace-nowrap px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-full text-sm font-medium" data-category="enchiladas">
+                            Enchiladas
+                        </button>
+                    </div>
+                    
+                    <div class="space-y-6" id="restaurant-menu">
+                        <!-- Menu items will be loaded here dynamically -->
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Cart Modal -->
+            <div id="cart-modal" class="cart-modal">
+                <div class="modal-content">
+                    <div class="p-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-bold">Your Order</h3>
+                            <button id="close-cart-modal" class="text-gray-500 hover:text-gray-700">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        
+                        <div id="cart-items" class="divide-y divide-gray-200">
+                            <!-- Cart items will be loaded here dynamically -->
+                            <div class="py-4 text-center text-gray-500">
+                                <i class="fas fa-shopping-cart text-2xl mb-2"></i>
+                                <p>Your cart is empty</p>
+                            </div>
+                        </div>
+                        
+                        <div class="border-t border-gray-200 pt-4 mt-4">
+                            <div class="flex justify-between mb-2">
+                                <span class="font-medium">Subtotal:</span>
+                                <span id="cart-subtotal" class="font-medium">$0.00</span>
+                            </div>
+                            <div class="flex justify-between mb-4">
+                                <span>Tax (8%):</span>
+                                <span id="cart-tax">$0.00</span>
+                            </div>
+                            <div class="flex justify-between font-bold text-lg">
+                                <span>Total:</span>
+                                <span id="cart-total">$0.00</span>
+                            </div>
+                            
+                            <button id="checkout-btn" class="w-full mt-6 bg-green-600 hover:bg-green-700 text-white py-3 rounded-md text-sm font-medium">
+                                Proceed to Checkout
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-6 right-6 bg-gray-900 text-white px-4 py-3 rounded-lg shadow-lg flex items-start hidden z-50">
+        <i class="fas fa-check-circle mt-0.5 mr-2 text-green-400"></i>
+        <span id="toast-message"></span>
+    </div>
+    <!-- Modern Footer -->
+    <footer class="bg-white border-t border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="md:flex md:items-center md:justify-between">
+                <div class="flex justify-center md:order-2 space-x-6">
+                    <p class="text-xs text-gray-500">
+                        <span class="block md:inline mt-1 md:mt-0">A Product of Blacnova.</span>
+                    </p>
+                </div>
+                <div class="mt-8 md:mt-0 md:order-1">
+                    <p class="text-center text-xs text-gray-500">
+                        &copy; 2025 Cards MMS. All rights reserved.
+                        <span class="block md:inline mt-1 md:mt-0">Unauthorized use is unlawful and prohibited.</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Sample menu data
+            let menuItems = [
+                {
+                    id: 1,
+                    name: "Chicken Caesar Wrap",
+                    description: "Grilled chicken, romaine, parmesan, caesar dressing",
+                    price: 45.00,
+                    portion: "5",
+                    category: "wraps",
+                   image: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80",
+                    tags: ["GF"],
+                    available: true
+                },
+                {
+                    id: 2,
+                    name: "Vegan Buddha Bowl",
+                    description: "Quinoa, roasted vegetables, avocado, tahini dressing",
+                    price: 42.00,
+                    portion: "5",
+                    category: "bowls",
+                    image: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80",
+                    tags: ["GF", "V"],
+                    available: true
+                },
+                {
+                    id: 3,
+                    name: "Enchiladas Verdes",
+                    description: "Corn tortillas filled with chicken, topped with green sauce",
+                    price: 48.00,
+                    portion: "5",
+                    category: "enchiladas",
+                    image: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80",
+                    tags: ["N"],
+                    available: true
+                }
+            ];
+            
+            let cart = [];
+            let currentEditingItem = null;
+            
+            // Initialize the app
+            function init() {
+                renderMenuItems();
+                renderRestaurantMenu();
+                setupEventListeners();
+            }
+            
+            // Render menu items in CMS
+            function renderMenuItems() {
+                const container = document.getElementById('menu-items-container');
+                container.innerHTML = '';
+                
+                menuItems.forEach(item => {
+                    const itemHtml = `
+                        <div class="menu-item-card bg-white border border-gray-200 rounded-lg p-4 shadow-sm relative" data-id="${item.id}">
+                            <div class="flex justify-between items-start">
+                                <div class="w-4/5">
+                                    <h3 class="font-semibold text-gray-800">${item.name}</h3>
+                                    <p class="text-sm text-gray-600 mt-1 truncate">${item.description}</p>
+                                    <div class="flex space-x-2 mt-2">
+                                        ${item.tags.map(tag => `
+                                            <span class="${getTagClass(tag)} text-xs px-2 py-1 rounded">${tag}</span>
+                                        `).join('')}
+                                    </div>
+                                </div>
+                                <div class="text-right flex flex-col items-end">
+                                    <div class="flex space-x-2 mb-1">
+                                        <button class="edit-item-btn text-gray-400 hover:text-green-600">
+                                            <i class="fas fa-pencil-alt"></i>
+                                        </button>
+                                        <button class="delete-item-btn text-gray-400 hover:text-red-600">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    </div>
+                                    <span class="font-semibold text-gray-800">$${item.price.toFixed(2)}</span>
+                                    <span class="text-xs text-gray-500">${item.portion} people</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    container.insertAdjacentHTML('beforeend', itemHtml);
+                });
+            }
+            
+            // Render restaurant menu
+            function renderRestaurantMenu() {
+                const container = document.getElementById('restaurant-menu');
+                container.innerHTML = '';
+                
+                menuItems.forEach(item => {
+                    const itemHtml = `
+                        <div class="restaurant-menu-item border border-gray-200 rounded-lg overflow-hidden shadow-sm" data-id="${item.id}" data-category="${item.category}">
+                            <div class="flex">
+                                <div class="w-1/4 bg-gray-100 flex items-center justify-center">
+                                    <img src="${item.image || 'https://via.placeholder.com/150'}" alt="${item.name}" class="w-full h-full object-cover">
+                                </div>
+                                <div class="w-3/4 p-4">
+                                    <h3 class="font-bold text-lg text-gray-800">${item.name}</h3>
+                                    <p class="text-gray-600 mt-1">${item.description}</p>
+                                    <div class="flex space-x-2 mt-3">
+                                        ${item.tags.map(tag => `
+                                            <span class="${getTagClass(tag)} text-xs px-2 py-1 rounded-full">${tag}</span>
+                                        `).join('')}
+                                    </div>
+                                </div>
+                                <div class="w-1/4 bg-gray-50 flex flex-col items-center justify-center p-4 border-l border-gray-200">
+                                    <span class="font-bold text-gray-800">$${item.price.toFixed(2)}</span>
+                                    <span class="text-xs text-gray-500 mt-1">for ${item.portion} people</span>
+                                    <button class="add-to-cart-btn mt-3 bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-full text-xs" data-id="${item.id}">
+                                        Add to Order
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    container.insertAdjacentHTML('beforeend', itemHtml);
+                });
+            }
+            
+            // Get tag styling class
+            function getTagClass(tag) {
+                switch(tag) {
+                    case 'GF': return 'bg-blue-100 text-blue-800';
+                    case 'V': return 'bg-purple-100 text-purple-800';
+                    case 'N': return 'bg-yellow-100 text-yellow-800';
+                    default: return 'bg-gray-100 text-gray-800';
+                }
+            }
+            
+            // Setup all event listeners
+            function setupEventListeners() {
+                // Edit item buttons
+                document.addEventListener('click', function(e) {
+                    if (e.target.closest('.edit-item-btn')) {
+                        const itemCard = e.target.closest('.menu-item-card');
+                        const itemId = parseInt(itemCard.dataset.id);
+                        const item = menuItems.find(i => i.id === itemId);
+                        
+                        if (item) {
+                            openEditModal(item);
+                        }
+                    }
+                    
+                    // Delete item buttons
+                    if (e.target.closest('.delete-item-btn')) {
+                        const itemCard = e.target.closest('.menu-item-card');
+                        const itemId = parseInt(itemCard.dataset.id);
+                        
+                        if (confirm('Are you sure you want to delete this menu item?')) {
+                            deleteMenuItem(itemId);
+                        }
+                    }
+                    
+                    // Add to cart buttons
+                    if (e.target.closest('.add-to-cart-btn')) {
+                        const itemId = parseInt(e.target.closest('.add-to-cart-btn').dataset.id);
+                        const item = menuItems.find(i => i.id === itemId);
+                        
+                        if (item) {
+                            addToCart(item);
+                        }
+                    }
+                    
+                    // Category filter buttons
+                    if (e.target.closest('.category-filter')) {
+                        const category = e.target.closest('.category-filter').dataset.category;
+                        filterMenu(category);
+                    }
+                });
+                
+                // Close edit modal
+                document.getElementById('close-edit-modal').addEventListener('click', closeEditModal);
+                document.getElementById('cancel-edit').addEventListener('click', closeEditModal);
+                
+                // Save edit form
+                document.getElementById('edit-item-form').addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    saveMenuItem();
+                });
+                
+                // Add new item
+                document.getElementById('add-item-btn').addEventListener('click', function() {
+                    addNewMenuItem();
+                });
+                
+                // Search items
+                document.getElementById('search-items').addEventListener('input', function() {
+                    searchItems(this.value);
+                });
+                
+                // Cart modal
+                document.getElementById('view-cart-btn').addEventListener('click', openCartModal);
+                document.getElementById('close-cart-modal').addEventListener('click', closeCartModal);
+                
+                // Checkout button
+                document.getElementById('checkout-btn').addEventListener('click', function() {
+                    showToast('Order placed successfully!');
+                    cart = [];
+                    updateCart();
+                    closeCartModal();
+                });
+            }
+            
+            // Open edit modal
+            function openEditModal(item) {
+                currentEditingItem = item;
+                
+                document.getElementById('edit-item-name').value = item.name;
+                document.getElementById('edit-item-desc').value = item.description;
+                document.getElementById('edit-item-price').value = item.price;
+                document.getElementById('edit-item-portion').value = item.portion;
+                document.getElementById('edit-item-image').value = item.image;
+                document.getElementById('edit-item-available').checked = item.available;
+                
+                // Reset checkboxes
+                document.querySelectorAll('#edit-item-form input[type="checkbox"]').forEach(cb => {
+                    cb.checked = false;
+                });
+                
+                // Set tags
+                item.tags.forEach(tag => {
+                    document.querySelector(`#edit-item-form input[value="${tag}"]`).checked = true;
+                });
+                
+                // Show modal
+                document.getElementById('edit-modal').classList.add('active');
+            }
+            
+            // Close edit modal
+            function closeEditModal() {
+                document.getElementById('edit-modal').classList.remove('active');
+                currentEditingItem = null;
+            }
+            
+            // Save menu item
+            function saveMenuItem() {
+                const name = document.getElementById('edit-item-name').value;
+                const desc = document.getElementById('edit-item-desc').value;
+                const price = parseFloat(document.getElementById('edit-item-price').value);
+                const portion = document.getElementById('edit-item-portion').value;
+                const image = document.getElementById('edit-item-image').value;
+                const available = document.getElementById('edit-item-available').checked;
+                
+                const tags = [];
+                document.querySelectorAll('#edit-item-form input[type="checkbox"]:checked').forEach(cb => {
+                    tags.push(cb.value);
+                });
+                
+                if (currentEditingItem) {
+                    // Update existing item
+                    currentEditingItem.name = name;
+                    currentEditingItem.description = desc;
+                    currentEditingItem.price = price;
+                    currentEditingItem.portion = portion;
+                    currentEditingItem.image = image;
+                    currentEditingItem.tags = tags;
+                    currentEditingItem.available = available;
+                    
+                    showToast('Menu item updated successfully!');
+                }
+                
+                renderMenuItems();
+                renderRestaurantMenu();
+                closeEditModal();
+            }
+            
+            // Add new menu item
+            function addNewMenuItem() {
+                const newId = menuItems.length > 0 ? Math.max(...menuItems.map(i => i.id)) + 1 : 1;
+                
+                const newItem = {
+                    id: newId,
+                    name: "New Menu Item",
+                    description: "Item description",
+                    price: 0.00,
+                    portion: "5",
+                    category: "wraps",
+                    image: "",
+                    tags: [],
+                    available: true
+                };
+                
+                menuItems.push(newItem);
+                renderMenuItems();
+                renderRestaurantMenu();
+                
+                // Scroll to the new item
+                setTimeout(() => {
+                    const newItemElement = document.querySelector(`.menu-item-card[data-id="${newId}"]`);
+                    newItemElement.scrollIntoView({ behavior: 'smooth' });
+                    
+                    // Highlight the new item
+                    newItemElement.classList.add('ring-2', 'ring-green-500');
+                    setTimeout(() => {
+                        newItemElement.classList.remove('ring-2', 'ring-green-500');
+                    }, 2000);
+                }, 100);
+                
+                showToast('New menu item added!');
+            }
+            
+            // Delete menu item
+            function deleteMenuItem(id) {
+                menuItems = menuItems.filter(item => item.id !== id);
+                renderMenuItems();
+                renderRestaurantMenu();
+                showToast('Menu item deleted!');
+            }
+            
+            // Search items
+            function searchItems(query) {
+                const container = document.getElementById('menu-items-container');
+                const items = container.querySelectorAll('.menu-item-card');
+                
+                items.forEach(item => {
+                    const text = item.textContent.toLowerCase();
+                    if (text.includes(query.toLowerCase())) {
+                        item.style.display = '';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+            }
+            
+            // Filter menu by category
+            function filterMenu(category) {
+                const items = document.querySelectorAll('#restaurant-menu .restaurant-menu-item');
+                const buttons = document.querySelectorAll('.category-filter');
+                
+                // Update active button
+                buttons.forEach(btn => {
+                    if (btn.dataset.category === category) {
+                        btn.classList.remove('bg-gray-100', 'hover:bg-gray-200');
+                        btn.classList.add('bg-green-600', 'text-white');
+                    } else {
+                        btn.classList.remove('bg-green-600', 'text-white');
+                        btn.classList.add('bg-gray-100', 'hover:bg-gray-200');
+                    }
+                });
+                
+                // Filter items
+                items.forEach(item => {
+                    if (category === 'all' || item.dataset.category === category) {
+                        item.style.display = '';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+            }
+            
+            // Cart functions
+            function addToCart(item) {
+                const existingItem = cart.find(i => i.id === item.id);
+                
+                if (existingItem) {
+                    existingItem.quantity += 1;
+                } else {
+                    cart.push({
+                        ...item,
+                        quantity: 1
+                    });
+                }
+                
+                updateCart();
+                showToast(`${item.name} added to cart!`);
+                
+                // Pulse cart icon
+                const cartIcon = document.getElementById('cart-count');
+                cartIcon.classList.add('cart-pulse');
+                setTimeout(() => {
+                    cartIcon.classList.remove('cart-pulse');
+                }, 500);
+            }
+            
+            function updateCart() {
+                const cartCount = document.getElementById('cart-count');
+                const cartItemsContainer = document.getElementById('cart-items');
+                const cartSubtotal = document.getElementById('cart-subtotal');
+                const cartTax = document.getElementById('cart-tax');
+                const cartTotal = document.getElementById('cart-total');
+                
+                // Update cart count
+                const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+                cartCount.textContent = totalItems;
+                
+                if (totalItems > 0) {
+                    cartCount.classList.remove('hidden');
+                } else {
+                    cartCount.classList.add('hidden');
+                }
+                
+                // Update cart items
+                if (cart.length > 0) {
+                    cartItemsContainer.innerHTML = '';
+                    
+                    cart.forEach(item => {
+                        const itemHtml = `
+                            <div class="cart-item py-4 flex justify-between items-center" data-id="${item.id}">
+                                <div class="flex items-center">
+                                    <div class="w-16 h-16 bg-gray-100 rounded-md overflow-hidden mr-4">
+                                        <img src="${item.image || 'https://via.placeholder.com/100'}" alt="${item.name}" class="w-full h-full object-cover">
+                                    </div>
+                                    <div>
+                                        <h4 class="font-medium text-gray-800">${item.name}</h4>
+                                        <p class="text-sm text-gray-500">$${item.price.toFixed(2)} × ${item.quantity}</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center">
+                                    <span class="font-medium mr-4">$${(item.price * item.quantity).toFixed(2)}</span>
+                                    <button class="remove-from-cart text-gray-400 hover:text-red-600">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                        cartItemsContainer.insertAdjacentHTML('beforeend', itemHtml);
+                    });
+                    
+                    // Add event listeners to remove buttons
+                    document.querySelectorAll('.remove-from-cart').forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            const itemId = parseInt(this.closest('.cart-item').dataset.id);
+                            removeFromCart(itemId);
+                        });
+                    });
+                } else {
+                    cartItemsContainer.innerHTML = `
+                        <div class="py-4 text-center text-gray-500">
+                            <i class="fas fa-shopping-cart text-2xl mb-2"></i>
+                            <p>Your cart is empty</p>
+                        </div>
+                    `;
+                }
+                
+                // Update totals
+                const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+                const tax = subtotal * 0.08;
+                const total = subtotal + tax;
+                
+                cartSubtotal.textContent = `$${subtotal.toFixed(2)}`;
+                cartTax.textContent = `$${tax.toFixed(2)}`;
+                cartTotal.textContent = `$${total.toFixed(2)}`;
+            }
+            
+            function removeFromCart(id) {
+                cart = cart.filter(item => item.id !== id);
+                updateCart();
+                showToast('Item removed from cart');
+            }
+            
+            function openCartModal() {
+                updateCart();
+                document.getElementById('cart-modal').classList.add('active');
+            }
+            
+            function closeCartModal() {
+                document.getElementById('cart-modal').classList.remove('active');
+            }
+            
+            // Show toast notification
+            function showToast(message) {
+                const toast = document.getElementById('toast');
+                const toastMessage = document.getElementById('toast-message');
+                
+                toastMessage.textContent = message;
+                toast.classList.remove('hidden');
+                
+                setTimeout(() => {
+                    toast.classList.add('hidden');
+                }, 3000);
+            }
+            
+            // Initialize the app
+            init();
+        });
+    </script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#4ade80',
+                        'primary-dark': '#22c55e',
+                        secondary: '#f6f9fc',
+                        dark: '#171717',
+                        light: '#ffffff',
+                        gray: {
+                            100: '#f8f9fa',
+                            200: '#e9ecef',
+                            300: '#dee2e6',
+                            400: '#ced4da',
+                            500: '#adb5bd',
+                            600: '#058E3F',
+                            700: '#04773B',
+                            800: '#1f2937',
+                            900: '#171717',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'card': '0 2px 4px rgba(0,0,0,.04), 0 8px 16px rgba(0,0,0,.08)',
+                        'button': '0 4px 6px rgba(50,50,93,.11), 0 1px 3px rgba(0,0,0,.08)',
+                        'button-hover': '0 7px 14px rgba(50,50,93,.1), 0 3px 6px rgba(0,0,0,.08)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        #toast {
+            position: fixed;
+            bottom: 1rem;
+            right: 1rem;
+            background-color: #171717;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: none;
+            align-items: center;
+            z-index: 1000;
+            animation: fadeIn 0.2s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+
+        /* Unified Modal Styles */
+        .custom-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .custom-modal-content {
+            background-color: white;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .custom-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .custom-modal-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #111827;
+        }
+        
+        .custom-modal-close {
+            background: none;
+            border: none;
+            font-size: 1.25rem;
+            cursor: pointer;
+            color: #6b7280;
+        }
+        
+        .custom-modal-body {
+            margin-bottom: 1.5rem;
+        }
+        
+        .custom-modal-input {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+        }
+        
+        .custom-modal-input:focus {
+            outline: none;
+            border-color: #4ade80;
+            box-shadow: 0 0 0 2px rgba(74, 222, 128, 0.2);
+        }
+        
+        .custom-modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.5rem;
+        }
+        
+        .custom-modal-btn {
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        
+        .custom-modal-btn-primary {
+            background-color: #4ade80;
+            color: white;
+            border: none;
+        }
+        
+        .custom-modal-btn-primary:hover {
+            background-color: #22c55e;
+        }
+        
+        .custom-modal-btn-secondary {
+            background-color: #f3f4f6;
+            color: #374151;
+            border: none;
+        }
+        
+        .custom-modal-btn-secondary:hover {
+            background-color: #e5e7eb;
+        }
+
+    </style>
+<script>
+    
+    document.addEventListener('DOMContentLoaded', function() {
+    // Get modal elements
+    const modal = document.getElementById('ticket-modal');
+    const openModalBtns = [
+        document.getElementById('submit-ticket-btn'),
+        document.getElementById('submit-ticket-btn-bottom')
+    ];
+    const closeModalBtn = document.getElementById('close-ticket-modal');
+    const cancelModalBtn = document.getElementById('ticket-modal-cancel');
+    const ticketForm = document.getElementById('ticket-form');
+    
+    // Get toast element
+    const toast = document.getElementById('toast');
+    const toastMsg = document.getElementById('toast-msg');
+
+    // Function to open modal
+    function openModal() {
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden'; // Prevent scrolling
+    }
+
+    // Function to close modal
+    function closeModal() {
+        modal.style.display = 'none';
+        document.body.style.overflow = 'auto'; // Re-enable scrolling
+    }
+
+    // Function to show toast message
+    function showToast(message) {
+        toastMsg.textContent = message;
+        toast.classList.add('show');
+        
+        // Hide toast after 3 seconds
+        setTimeout(() => {
+            toast.classList.remove('show');
+        }, 3000);
+    }
+
+    // Event listeners for opening modal
+    openModalBtns.forEach(btn => {
+        if (btn) {
+            btn.addEventListener('click', openModal);
+        }
+    });
+
+    // Event listeners for closing modal
+    if (closeModalBtn) closeModalBtn.addEventListener('click', closeModal);
+    if (cancelModalBtn) cancelModalBtn.addEventListener('click', closeModal);
+
+    // Close modal when clicking outside of it
+    window.addEventListener('click', (event) => {
+        if (event.target === modal) {
+            closeModal();
+        }
+    });
+
+    // Form submission handler
+    if (ticketForm) {
+        ticketForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Get form values
+            const subject = document.getElementById('ticket-subject').value;
+            const message = document.getElementById('ticket-message').value;
+            
+            // Here you would typically send the data to your server
+            // For demonstration, we'll just show a success message
+            console.log('Ticket submitted:', { subject, message });
+            
+            // Show success toast
+            showToast('Ticket submitted successfully!');
+            
+            // Close modal and reset form
+            closeModal();
+            ticketForm.reset();
+        });
+    }
+});
+</script>
+</html>
