@@ -1,16 +1,32 @@
 [
   {
-    "name": "Nicholas Davis",
-    "email": "nicxdavis5@gmail.com",
-    "phone": "53453",
-    "message": "Test",
-    "date": "2025-06-17T17:21:28.817Z"
+    "name": "John Doe",
+    "email": "john.doe@example.com",
+    "message": "Hi, I’m interested in your services. Please get back to me!"
   },
   {
-    "name": "Nicholas Davis",
-    "email": "nicxdavis5@gmail.com",
-    "phone": "Not provided",
-    "message": "this is a test",
-    "date": "2025-06-17T17:21:54.341Z"
+    "name": "Jane Smith",
+    "email": "jane.smith@example.com",
+    "message": "Can I schedule a consultation for next week?"
+  },
+  {
+    "name": "Michael Johnson",
+    "email": "michael.johnson@example.com",
+    "message": "Looking forward to collaborating on my upcoming project."
+  },
+  {
+    "name": "Emily Davis",
+    "email": "emily.davis@example.com",
+    "message": "Please provide a quote for a full website redesign."
+  },
+  {
+    "name": "Chris Lee",
+    "email": "chris.lee@example.com",
+    "message": "I have some questions about hosting and domain services."
+  },
+  {
+    "name": "Sophia Martinez",
+    "email": "sophia.martinez@example.com",
+    "message": "Do you offer photography services for products?"
   }
 ]
