@@ -63,12 +63,12 @@
     "lm_desc": "Spice up your night with energetic salsa rhythms and signature Latin cocktails. Beginners welcome—an instructor will be on-site to guide the steps before the dance floor opens up."
   },
   {
-    "image": "https://raw.githubusercontent.com/nicholasxdavis/cards-img/main/assets/1751245610805-option-(2).png",
     "date": "AUG 3",
-    "title": "Local Art & Wine Showcase",
-    "description": "Browse local artwork while sipping on premium wines.",
     "time": "5:00 PM",
+    "title": "Local Art & Wine Test",
+    "description": "Browse local artwork while sipping on premium wines.",
+    "lm_desc": "Celebrate creativity with an open gallery night featuring local artists and handcrafted wines. Mingle with the creators, discover new art, and enjoy a casual yet cultured evening.",
     "linkText": "Learn More →",
-    "lm_desc": "Celebrate creativity with an open gallery night featuring local artists and handcrafted wines. Mingle with the creators, discover new art, and enjoy a casual yet cultured evening."
+    "image": "https://raw.githubusercontent.com/nicholasxdavis/cards-img/main/assets/1751245610805-option-(2).png"
   }
 ]
