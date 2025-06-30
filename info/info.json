@@ -34,5 +34,13 @@
     "lastName": "Martinez",
     "email": "sophia.martinez@example.com",
     "mobilePhoneNumber": "+1-555-667-8899"
+  },
+  {
+    "firstName": "Nicholas",
+    "lastName": "Davis",
+    "email": "nic@blacnova.net",
+    "mobilePhoneNumber": "5752701276",
+    "smsConsent": true,
+    "signupDate": "2025-06-30T02:15:20.621Z"
   }
 ]
