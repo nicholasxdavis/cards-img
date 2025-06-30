@@ -1,70 +1,34 @@
-{
-  "events": [
-    {
-      "title": "Test Night",
-      "date": "2025-06-15",
-      "time": "6:00 PM - 9:00 PM",
-      "location": "Main Courtyard",
-      "description": "Enjoy an evening of smooth jazz with The Mesilla Trio featuring special guest vocalist Maria Sanchez. $10 cover includes complimentary appetizers.",
-      "type": "today",
-      "options": "tickets",
-      "ticketlink": "https://www.eventbrite.com/e/the-macaroni-cheese-festival-of-the-four-corners-tickets-1253987734069?aff=ehometext",
-      "event_details": "Details etc like is this event 21+ is there parking? etc"
-    },
-    {
-      "title": "Test Market",
-      "date": "2025-06-22",
-      "time": "9:00 AM - 2:00 PM",
-      "location": "Front Lawn",
-      "description": "Local organic produce & artisan goods",
-      "type": "upcoming",
-      "options": "",
-      "ticketlink": "",
-      "event_details": ""
-    },
-    {
-      "title": "Test & Paint",
-      "date": "2025-06-29",
-      "time": "5:30 PM",
-      "location": "Event Room",
-      "description": "Guided painting with local wines ($45)",
-      "type": "today",
-      "options": "tickets",
-      "ticketlink": "https://www.eventbrite.com/e/the-macaroni-cheese-festival-of-the-four-corners-tickets-1253987734069?aff=ehometext",
-      "event_details": "Details etc like is this event 21+ is there parking? etc"
-    },
-    {
-      "title": "Summer Movie Night",
-      "date": "2025-07-05",
-      "time": "8:00 PM",
-      "location": "Outdoor Amphitheater",
-      "description": "Bring a blanket and enjoy a family-friendly film under the stars. Popcorn provided!",
-      "type": "upcoming",
-      "options": "",
-      "ticketlink": "",
-      "event_details": ""
-    },
-    {
-      "title": "Sunrise Yoga",
-      "date": "2025-07-08",
-      "time": "6:00 AM",
-      "location": "Rooftop Garden",
-      "description": "Start your day with a peaceful yoga session. Mats provided.",
-      "type": "upcoming",
-      "options": "",
-      "ticketlink": "",
-      "event_details": ""
-    },
-    {
-      "title": "Cooking Demo: Salsa Night",
-      "date": "2025-07-12",
-      "time": "4:00 PM - 6:00 PM",
-      "location": "Community Kitchen",
-      "description": "Learn how to make authentic salsas with Chef Lupe. Samples included.",
-      "type": "upcoming",
-      "options": "",
-      "ticketlink": "",
-      "event_details": ""
-    }
-  ]
-}
+[
+  {
+    "image": "Wine.png",
+    "date": "JUN 15",
+    "title": "Wine Tasting Night",
+    "description": "Experience our finest local wine selection paired with artisanal cheeses.",
+    "time": "7:00 PM",
+    "linkText": "Learn More →"
+  },
+  {
+    "image": "Wine.png",
+    "date": "JUN 22",
+    "title": "Farmers Market Brunch",
+    "description": "Sunday brunch featuring fresh ingredients from local producers.",
+    "time": "10:00 AM",
+    "linkText": "Learn More →"
+  },
+  {
+    "image": "Wine.png",
+    "date": "JUN 29",
+    "title": "Live Jazz Evening",
+    "description": "Smooth jazz performances while you enjoy our seasonal menu.",
+    "time": "8:00 PM",
+    "linkText": "Learn More →"
+  },
+  {
+    "image": "Wine.png",
+    "date": "JUL 6",
+    "title": "Chef's Table Experience",
+    "description": "Exclusive multi-course dinner prepared right before your eyes.",
+    "time": "6:30 PM",
+    "linkText": "Learn More →"
+  }
+]
