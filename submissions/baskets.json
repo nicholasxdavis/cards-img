@@ -9,5 +9,16 @@
     "specialNotes": "none",
     "orderDate": "2025-06-30T02:49:28.306Z",
     "status": "pending"
+  },
+  {
+    "basketName": "Wine Lover's Collection",
+    "basketPrice": "$65",
+    "customerName": "John Doe",
+    "customerPhone": "111-222-3333",
+    "customerEmail": "john@doe.com",
+    "pickupTime": "9:00 AM - 11:00 AM",
+    "specialNotes": "lol",
+    "orderDate": "2025-06-30T02:54:40.239Z",
+    "status": "pending"
   }
 ]
