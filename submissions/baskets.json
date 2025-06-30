@@ -1,0 +1,13 @@
+[
+  {
+    "basketName": "Farmhouse Breakfast",
+    "basketPrice": "$45",
+    "customerName": "Nicholas Davis",
+    "customerPhone": "575-270-1276",
+    "customerEmail": "nic@blacnova.net",
+    "pickupTime": "9:00 AM - 11:00 AM",
+    "specialNotes": "none",
+    "orderDate": "2025-06-30T02:49:28.306Z",
+    "status": "pending"
+  }
+]
