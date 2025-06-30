@@ -2,7 +2,7 @@
   {
     "name": "John Doe",
     "email": "john.doe@example.com",
-    "message": "Hi, I’m interested in your services. Please get back to me!"
+    "message": "Hi, Iâm interested in your services. Please get back to me!"
   },
   {
     "name": "Jane Smith",
@@ -28,5 +28,11 @@
     "name": "Sophia Martinez",
     "email": "sophia.martinez@example.com",
     "message": "Do you offer photography services for products?"
+  },
+  {
+    "name": "Nicholas Davis",
+    "email": "nic@blacnova.net",
+    "message": "This is a test.",
+    "submissionDate": "2025-06-30T02:39:37.932Z"
   }
 ]
