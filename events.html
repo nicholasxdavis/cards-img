@@ -1,0 +1,1397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Events Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-50 flex flex-col min-h-screen">
+     <div id="delete-modal" class="custom-modal hidden">
+        <div class="custom-modal-content">
+            <div class="custom-modal-header">
+                <h3 class="custom-modal-title">Remove Event</h3>
+                <button id="close-delete-modal" class="custom-modal-close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="custom-modal-body">
+                <p>Are you sure you want to remove this event?</p>
+                <input type="hidden" id="delete-event-index">
+            </div>
+            <div class="custom-modal-footer">
+                <button id="delete-modal-cancel" class="custom-modal-btn custom-modal-btn-secondary">
+                    Cancel
+                </button>
+                <button id="delete-confirm" class="custom-modal-btn custom-modal-btn-primary">
+                    Remove
+                </button>
+            </div>
+        </div>
+    </div>
+<header class="bg-dark text-white">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center py-4">
+                    <div class="flex items-center space-x-4">
+                        <a href="https://nicholasxdavis.github.io/cards-mms/#">
+                            <img src="assets/logo.png" alt="Cards Logo" class="h-10">
+                        </a>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <button id="submit-ticket-btn" class="bg-primary hover:bg-primary-dark px-3 py-1.5 rounded-md text-sm font-medium transition-colors">
+                            <i class="fas fa-ticket-alt mr-1"></i> Submit Ticket
+                        </button>
+                        <a href="index.html" class="bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-md text-sm font-medium transition-colors">
+                            Dashboard
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </header>
+<div class="fixed top-[120px] left-0 z-50 overflow-hidden">
+  <button
+    onclick="window.history.back()"
+    class="group ml-[-4px] h-[48px] pl-2 pr-4 py-3 bg-green-500 text-white border-l-0 rounded-r-lg shadow-md transform transition-all duration-200 ease-out hover:ml-0 hover:shadow-lg hover:bg-green-600 focus:outline-none flex items-center font-medium border border-green-600 border-l-0 whitespace-nowrap"
+    aria-label="Previous Page"
+  >
+    <div class="flex items-center">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transition-transform duration-200 group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+      </svg>
+      <span class="max-w-0 overflow-hidden transition-all duration-200 group-hover:max-w-[120px] group-hover:ml-2">
+        Previous Page
+      </span>
+    </div>
+  </button>
+</div>
+    <!-- Main Content -->
+    <main class="flex-grow">
+        <div class="max-w-7xl mx-auto px-4 py-8">
+            <!-- Loading Indicator -->
+            <div id="loading-indicator" class="text-center py-8">
+                <div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
+                <p class="mt-2 text-gray-600">Loading events...</p>
+            </div>
+
+            <!-- Upcoming Events -->
+            <div id="upcoming-events-container" class="mb-12 hidden">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-dark">Upcoming Events</h2>
+                    <button id="add-event-btn" class="inline-flex items-center px-4 py-2 bg-primary hover:bg-primary-dark text-white text-sm font-medium rounded-lg shadow-button hover:shadow-button-hover transition-all">
+                        <i class="fas fa-plus mr-2"></i> Add Event
+                    </button>
+                </div>
+                <div id="upcoming-events" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Upcoming events will be inserted here -->
+                </div>
+            </div>
+
+            <!-- Past Events -->
+            <div id="past-events-container" class="mb-12 hidden">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-dark">Past Events</h2>
+                </div>
+                <div id="past-events" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Past events will be inserted here -->
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div id="empty-state" class="text-center py-12 hidden">
+                <i class="fas fa-calendar-alt text-4xl text-gray-300 mb-4"></i>
+                <h3 class="text-lg font-medium text-gray-700">No events found</h3>
+                <p class="text-gray-500 mt-2">Click the "Add Event" button to create your first event.</p>
+                <button id="add-event-btn-empty" class="mt-4 inline-flex items-center px-4 py-2 bg-primary hover:bg-primary-dark text-white text-sm font-medium rounded-lg shadow-button hover:shadow-button-hover transition-all">
+                    <i class="fas fa-plus mr-2"></i> Add Event
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Add/Edit Event Modal -->
+    <div id="event-modal" class="custom-modal hidden">
+        <div class="custom-modal-content max-w-2xl">
+            <div class="custom-modal-header">
+                <h3 class="custom-modal-title" id="event-modal-title">Add New Event</h3>
+                <button id="close-event-modal" class="custom-modal-close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="event-form" class="custom-modal-body space-y-4">
+                <input type="hidden" id="event-index">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="event-date" class="block text-sm font-medium text-gray-700 mb-1">Date (MMM DD)</label>
+                        <input type="text" id="event-date" required placeholder="e.g., JUN 15"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary">
+                    </div>
+                    <div>
+                        <label for="event-time" class="block text-sm font-medium text-gray-700 mb-1">Time (e.g., 7:00 PM)</label>
+                        <input type="text" id="event-time" required placeholder="e.g., 7:00 PM"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary">
+                    </div>
+                </div>
+                <div>
+                    <label for="event-title" class="block text-sm font-medium text-gray-700 mb-1">Title</label>
+                    <input type="text" id="event-title" required placeholder="Event title"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary">
+                </div>
+                <div>
+                    <label for="event-description" class="block text-sm font-medium text-gray-700 mb-1">Short Description</label>
+                    <textarea id="event-description" rows="2" required placeholder="Brief description that appears on the card"
+                              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"></textarea>
+                </div>
+                <div>
+                    <label for="event-lm-desc" class="block text-sm font-medium text-gray-700 mb-1">Detailed Description (for "Learn More")</label>
+                    <textarea id="event-lm-desc" rows="4" required placeholder="Full description that appears when clicking 'Learn More'"
+                              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"></textarea>
+                </div>
+                <div>
+                    <label for="event-link-text" class="block text-sm font-medium text-gray-700 mb-1">Link Text</label>
+                    <input type="text" id="event-link-text" required placeholder="e.g., Learn More →"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary">
+                </div>
+                <div>
+                    <label for="event-image-url" class="block text-sm font-medium text-gray-700 mb-1">Image URL</label>
+                    <input type="text" id="event-image-url" placeholder="Will be generated after upload"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary" readonly>
+                </div>
+                <div>
+                    <label for="event-image-upload" class="block text-sm font-medium text-gray-700 mb-1">Upload Image</label>
+                    <div class="mt-1 flex items-center">
+                        <input type="file" id="event-image-upload" accept="image/*" 
+                               class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-white hover:file:bg-primary-dark">
+                        <button id="upload-image-btn" type="button" class="ml-2 inline-flex items-center px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 text-sm font-medium rounded-md">
+                            <i class="fas fa-upload mr-2"></i> Upload
+                        </button>
+                    </div>
+                    <p class="mt-1 text-xs text-gray-500">Images will be saved to GitHub assets folder</p>
+                </div>
+                <div id="image-upload-status" class="text-sm hidden"></div>
+            </form>
+            <div class="custom-modal-footer">
+                <button id="event-modal-cancel" type="button" class="custom-modal-btn custom-modal-btn-secondary">
+                    Cancel
+                </button>
+                <button type="submit" form="event-form" class="custom-modal-btn custom-modal-btn-primary">
+                    Save Event
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="delete-modal" class="custom-modal hidden">
+        <div class="custom-modal-content">
+            <div class="custom-modal-header">
+                <h3 class="custom-modal-title">Confirm Deletion</h3>
+                <button id="close-delete-modal" class="custom-modal-close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="custom-modal-body">
+                <p>Are you sure you want to delete this event? This action cannot be undone.</p>
+                <input type="hidden" id="delete-event-index">
+            </div>
+            <div class="custom-modal-footer">
+                <button id="delete-modal-cancel" type="button" class="custom-modal-btn custom-modal-btn-secondary">
+                    Cancel
+                </button>
+                <button id="delete-confirm" type="button" class="custom-modal-btn custom-modal-btn-danger">
+                    Delete Event
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Submit Ticket Modal -->
+    <div id="ticket-modal" class="custom-modal hidden">
+        <div class="custom-modal-content">
+            <div class="custom-modal-header">
+                <h3 class="custom-modal-title">Submit a Ticket</h3>
+                <button id="close-ticket-modal" class="custom-modal-close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="ticket-form" class="custom-modal-body space-y-4">
+                <div>
+                    <label for="ticket-subject" class="block text-sm font-medium text-gray-700 mb-1">Subject</label>
+                    <input type="text" id="ticket-subject" required
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary">
+                </div>
+                <div>
+                    <label for="ticket-message" class="block text-sm font-medium text-gray-700 mb-1">Message</label>
+                    <textarea id="ticket-message" rows="4" required
+                              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"></textarea>
+                </div>
+            </form>
+            <div class="custom-modal-footer">
+                <button id="ticket-modal-cancel" type="button" class="custom-modal-btn custom-modal-btn-secondary">
+                    Cancel
+                </button>
+                <button type="submit" form="ticket-form" class="custom-modal-btn custom-modal-btn-primary">
+                    Submit Ticket
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="hidden fixed bottom-5 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-4 py-2 rounded-lg shadow-lg flex items-center">
+        <i class="fas fa-check-circle mr-2 text-green-400"></i>
+        <span id="toast-msg"></span>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="md:flex md:items-center md:justify-between">
+                <div class="flex justify-center md:order-2 space-x-6">
+                    <p class="text-xs text-gray-500">
+                        <span class="block md:inline mt-1 md:mt-0">A Product of Blacnova.</span>
+                    </p>
+                </div>
+                <div class="mt-8 md:mt-0 md:order-1">
+                    <p class="text-center text-xs text-gray-500">
+                        &copy; 2025 Events Dashboard. All rights reserved.
+                        <span class="block md:inline mt-1 md:mt-0">Unauthorized use is unlawful and prohibited.</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <style>
+        /* Password Protection */
+        .password-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(23, 23, 23, 0.96);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+            overflow: hidden; /* Prevent scrolling */
+        }
+
+        body.password-protected {
+            overflow: hidden; /* Disable scrolling on body */
+            position: fixed;
+            width: 100%;
+            height: 100%;
+        }
+
+        .password-box {
+            background: white;
+            border-radius: 12px;
+            padding: 2.5rem;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            transform: translateY(-20px);
+            opacity: 0;
+            animation: slideUp 0.4s ease-out forwards;
+        }
+
+        @keyframes slideUp {
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .remember-me {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .remember-me input {
+            margin-right: 0.5rem;
+        }
+
+        /* Event Card Styles */
+        .event-card {
+            transition: all 0.2s ease;
+        }
+
+        .event-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        .event-image {
+            height: 200px;
+            object-fit: cover;
+            width: 100%;
+            border-top-left-radius: 0.5rem;
+            border-top-right-radius: 0.5rem;
+        }
+
+        /* Past Events */
+        .past-event-card {
+            opacity: 0.8;
+            filter: grayscale(30%);
+        }
+        
+        .past-event-card:hover {
+            opacity: 1;
+            filter: grayscale(0%);
+        }
+
+        /* Unified Modal Styles */
+        .custom-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .custom-modal-content {
+            background-color: white;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .custom-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .custom-modal-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #111827;
+        }
+        
+        .custom-modal-close {
+            background: none;
+            border: none;
+            font-size: 1.25rem;
+            cursor: pointer;
+            color: #6b7280;
+        }
+        
+        .custom-modal-body {
+            margin-bottom: 1.5rem;
+        }
+        
+        .custom-modal-input {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+        }
+        
+        .custom-modal-input:focus {
+            outline: none;
+            border-color: #4ade80;
+            box-shadow: 0 0 0 2px rgba(74, 222, 128, 0.2);
+        }
+        
+        .custom-modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.5rem;
+        }
+        
+        .custom-modal-btn {
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        
+        .custom-modal-btn-primary {
+            background-color: #4ade80;
+            color: white;
+            border: none;
+        }
+        
+        .custom-modal-btn-primary:hover {
+            background-color: #22c55e;
+        }
+
+        .custom-modal-btn-danger {
+            background-color: #ef4444;
+            color: white;
+            border: none;
+        }
+        
+        .custom-modal-btn-danger:hover {
+            background-color: #dc2626;
+        }
+        
+        .custom-modal-btn-secondary {
+            background-color: #f3f4f6;
+            color: #374151;
+            border: none;
+        }
+        
+        .custom-modal-btn-secondary:hover {
+            background-color: #e5e7eb;
+        }
+
+        /* Toast Animation */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        #toast.show {
+            display: flex;
+            animation: fadeIn 0.2s ease-out;
+        }
+    </style>
+
+    <!-- Password Protection -->
+    <div id="password-protection" class="password-container">
+        <div class="password-box">
+            <div class="text-center mb-6">
+                <div class="flex justify-center mb-4">
+                    <a href="#">
+                        <img src="assets/logo_black.png" alt="Cards Logo" class="h-14">
+                    </a>
+                </div>
+                <h2 class="text-2xl font-bold text-dark mb-1">Content Management</h2>
+                <p class="text-gray-600">Enter credentials to continue</p>
+            </div>
+            
+            <form id="password-form" class="space-y-4">
+                <div>
+                    <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                    <input type="email" id="email" required
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary">
+                </div>
+                
+                <div>
+                    <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                    <input type="password" id="password" required
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary">
+                </div>
+                
+                <div class="remember-me">
+                    <input type="checkbox" id="remember-me" name="remember-me">
+                    <label for="remember-me" class="text-sm text-gray-700">Remember me</label>
+                </div>
+                
+                <button type="submit" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                    Continue
+                </button>
+            </form>
+            
+            <div class="mt-6 text-center text-xs text-gray-500">
+                Unauthorized use is unlawful and prohibited
+            </div>
+        </div>
+    </div>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#4ade80',
+                        'primary-dark': '#22c55e',
+                        secondary: '#f6f9fc',
+                        dark: '#171717',
+                        light: '#ffffff',
+                        gray: {
+                            100: '#f8f9fa',
+                            200: '#e9ecef',
+                            300: '#dee2e6',
+                            400: '#ced4da',
+                            500: '#adb5bd',
+                            600: '#058E3F',
+                            700: '#04773B',
+                            800: '#1f2937',
+                            900: '#171717',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'card': '0 2px 4px rgba(0,0,0,.04), 0 8px 16px rgba(0,0,0,.08)',
+                        'button': '0 4px 6px rgba(50,50,93,.11), 0 1px 3px rgba(0,0,0,.08)',
+                        'button-hover': '0 7px 14px rgba(50,50,93,.1), 0 3px 6px rgba(0,0,0,.08)',
+                    }
+                }
+            }
+        }
+
+        // Configuration
+        const CONFIG = {
+            REPO: "nicholasxdavis/cards-img",
+            EVENTS_FILE: "Events/events.json",
+            ASSETS_FOLDER: "assets/",
+            MAX_SIZE: 5 * 1024 * 1024, // 5MB
+            TOKEN: "" // Will be populated after fetch
+        };
+
+        // Global events array
+        let events = [];
+
+        // Function to fetch and process token
+        async function fetchAndProcessToken() {
+            try {
+                const response = await fetch('https://nicholasxdavis.github.io/cards-img/assets/auth.txt');
+                if (!response.ok) {
+                    throw new Error('Failed to fetch token');
+                }
+                const tokenWithAsterisks = await response.text();
+                // Remove all asterisks from the token
+                CONFIG.TOKEN = tokenWithAsterisks.replace(/\*/g, '');
+            } catch (error) {
+                console.error('Error fetching token:', error);
+                showToast('Error loading authentication token', 'error');
+            }
+        }
+
+        // Function to fetch events with cache busting
+        async function fetchEvents() {
+            try {
+                // Add cache busting parameter to ensure fresh data
+                const cacheBuster = `?t=${new Date().getTime()}`;
+                const response = await fetch(`https://nicholasxdavis.github.io/cards-img/${CONFIG.EVENTS_FILE}${cacheBuster}`);
+                if (!response.ok) {
+                    throw new Error('Failed to fetch events');
+                }
+                events = await response.json();
+                renderEvents();
+            } catch (error) {
+                console.error('Error fetching events:', error);
+                showToast('Error loading events. Please try again later.', 'error');
+                document.getElementById('loading-indicator').classList.add('hidden');
+                document.getElementById('empty-state').classList.remove('hidden');
+            }
+        }
+         function setupEventCardButtons() {
+            // Edit buttons
+            document.querySelectorAll('.edit-event').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const index = parseInt(button.getAttribute('data-index'));
+                    openEditEventModal(index);
+                });
+            });
+
+            // Delete buttons
+            document.querySelectorAll('.delete-event').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const index = parseInt(button.getAttribute('data-index'));
+                    openDeleteEventModal(index);
+                });
+            });
+        }
+        function openDeleteEventModal(index) {
+            const modal = document.getElementById('delete-modal');
+            document.getElementById('delete-event-index').value = index;
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+   function setupDeleteModal() {
+            const deleteModal = document.getElementById('delete-modal');
+            const closeDeleteModal = document.getElementById('close-delete-modal');
+            const cancelDeleteModal = document.getElementById('delete-modal-cancel');
+            const confirmDelete = document.getElementById('delete-confirm');
+            
+            // Close delete modal
+            closeDeleteModal?.addEventListener('click', () => {
+                deleteModal.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            });
+            
+            cancelDeleteModal?.addEventListener('click', () => {
+                deleteModal.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            });
+            
+            // Confirm delete
+            confirmDelete?.addEventListener('click', async () => {
+                const index = parseInt(document.getElementById('delete-event-index').value);
+                if (index >= 0 && index < events.length) {
+                    events.splice(index, 1);
+                    
+                    const success = await saveEventsToGitHub();
+                    if (success) {
+                        renderEvents();
+                    }
+                }
+                
+                deleteModal.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            });
+            
+            // Close when clicking outside
+            window.addEventListener('click', (event) => {
+                if (event.target === deleteModal) {
+                    deleteModal.style.display = 'none';
+                    document.body.style.overflow = 'auto';
+                }
+            });
+        }
+        // Initialize the page (updated to include delete modal setup)
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Fetch token
+            await fetchAndProcessToken();
+            
+            // Fetch events with cache busting
+            await fetchEvents();
+            
+            // Setup modal event listeners
+            setupModals();
+            
+            // Setup form submission
+            setupFormSubmission();
+            
+            // Setup image upload
+            setupImageUpload();
+
+            // Setup delete confirmation modal
+            setupDeleteModal();
+        });
+        // Function to categorize events into past and upcoming
+        function categorizeEvents() {
+            const now = new Date();
+            const currentYear = now.getFullYear();
+            
+            return events.reduce((acc, event) => {
+                // Parse event date (format: "MMM DD")
+                const eventDateStr = event.date;
+                const eventYear = currentYear; // Assume current year for simplicity
+                const eventDate = new Date(`${eventDateStr} ${eventYear}`);
+                
+                if (eventDate < now) {
+                    acc.past.push(event);
+                } else {
+                    acc.upcoming.push(event);
+                }
+                return acc;
+            }, { past: [], upcoming: [] });
+        }
+
+        // Function to render events
+        function renderEvents() {
+            const { past, upcoming } = categorizeEvents();
+            const loadingIndicator = document.getElementById('loading-indicator');
+            const emptyState = document.getElementById('empty-state');
+            const upcomingContainer = document.getElementById('upcoming-events-container');
+            const pastContainer = document.getElementById('past-events-container');
+            const upcomingEvents = document.getElementById('upcoming-events');
+            const pastEvents = document.getElementById('past-events');
+
+            // Clear existing events
+            upcomingEvents.innerHTML = '';
+            pastEvents.innerHTML = '';
+
+            if (events.length === 0) {
+                loadingIndicator.classList.add('hidden');
+                emptyState.classList.remove('hidden');
+                upcomingContainer.classList.add('hidden');
+                pastContainer.classList.add('hidden');
+                return;
+            }
+
+            // Render upcoming events
+            if (upcoming.length > 0) {
+                upcoming.forEach((event, index) => {
+                    upcomingEvents.appendChild(createEventCard(event, index));
+                });
+                upcomingContainer.classList.remove('hidden');
+            } else {
+                upcomingContainer.classList.add('hidden');
+            }
+
+            // Render past events
+            if (past.length > 0) {
+                past.forEach((event, index) => {
+                    // Find the original index in the events array
+                    const originalIndex = events.findIndex(e => 
+                        e.date === event.date && 
+                        e.title === event.title
+                    );
+                    pastEvents.appendChild(createEventCard(event, originalIndex, true));
+                });
+                pastContainer.classList.remove('hidden');
+            } else {
+                pastContainer.classList.add('hidden');
+            }
+
+            loadingIndicator.classList.add('hidden');
+            emptyState.classList.add('hidden');
+
+            // Setup event listeners for the new buttons
+            setupEventCardButtons();
+        }
+
+
+        // Function to create an event card
+        function createEventCard(event, index, isPast = false) {
+            const eventCard = document.createElement('div');
+            eventCard.className = `event-card bg-white rounded-lg shadow-card border border-gray-100 overflow-hidden ${isPast ? 'past-event-card' : ''}`;
+            eventCard.innerHTML = `
+                <img src="${event.image}" alt="${event.title}" class="event-image">
+                <div class="p-4">
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="text-sm font-semibold ${isPast ? 'text-gray-500' : 'text-primary'}">${event.date}</span>
+                        <span class="text-sm text-gray-500">${event.time}</span>
+                    </div>
+                    <h3 class="text-lg font-bold text-dark mb-2">${event.title}</h3>
+                    <p class="text-gray-600 text-sm mb-4">${event.description}</p>
+                    <div class="flex justify-between items-center">
+                        <a href="#" class="text-primary text-sm font-medium">${event.linkText}</a>
+                        <div class="flex space-x-2">
+                            <button class="edit-event text-gray-400 hover:text-primary" data-index="${index}">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="delete-event text-gray-400 hover:text-red-500" data-index="${index}">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            return eventCard;
+        }
+
+        // Function to upload image to GitHub
+        async function uploadImageToGitHub(file) {
+            try {
+                const uploadStatus = document.getElementById('image-upload-status');
+                uploadStatus.textContent = 'Uploading image...';
+                uploadStatus.className = 'text-sm text-blue-600';
+                uploadStatus.classList.remove('hidden');
+
+                // Generate unique filename
+                const timestamp = new Date().getTime();
+                const fileExtension = file.name.split('.').pop();
+                const filename = `event-${timestamp}.${fileExtension}`;
+                const filePath = `${CONFIG.ASSETS_FOLDER}${filename}`;
+
+                // Read file as base64
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                
+                return new Promise((resolve, reject) => {
+                    reader.onload = async () => {
+                        const content = reader.result.split(',')[1]; // Remove data URL prefix
+
+                        // Check if file exists to get SHA
+                        let sha = '';
+                        try {
+                            const shaResponse = await fetch(`https://api.github.com/repos/${CONFIG.REPO}/contents/${filePath}`, {
+                                headers: {
+                                    'Authorization': `token ${CONFIG.TOKEN}`,
+                                    'Accept': 'application/vnd.github.v3+json'
+                                }
+                            });
+
+                            if (shaResponse.ok) {
+                                const shaData = await shaResponse.json();
+                                sha = shaData.sha;
+                            }
+                        } catch (error) {
+                            console.log('File does not exist, will create new');
+                        }
+
+                        // Upload file
+                        try {
+                            const uploadResponse = await fetch(`https://api.github.com/repos/${CONFIG.REPO}/contents/${filePath}`, {
+                                method: 'PUT',
+                                headers: {
+                                    'Authorization': `token ${CONFIG.TOKEN}`,
+                                    'Accept': 'application/vnd.github.v3+json',
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({
+                                    message: `Upload event image: ${filename}`,
+                                    content: content,
+                                    sha: sha
+                                })
+                            });
+
+                            if (!uploadResponse.ok) {
+                                throw new Error('Failed to upload image');
+                            }
+
+                            const imageUrl = `https://raw.githubusercontent.com/${CONFIG.REPO}/main/${filePath}`;
+                            uploadStatus.textContent = 'Image uploaded successfully!';
+                            uploadStatus.className = 'text-sm text-green-600';
+                            resolve(imageUrl);
+                        } catch (error) {
+                            console.error('Error uploading image:', error);
+                            uploadStatus.textContent = 'Error uploading image. Please try again.';
+                            uploadStatus.className = 'text-sm text-red-600';
+                            reject(error);
+                        }
+                    };
+
+                    reader.onerror = error => {
+                        console.error('Error reading file:', error);
+                        uploadStatus.textContent = 'Error reading image file.';
+                        uploadStatus.className = 'text-sm text-red-600';
+                        reject(error);
+                    };
+                });
+            } catch (error) {
+                console.error('Error in upload process:', error);
+                throw error;
+            }
+        }
+
+        // Function to save events to GitHub
+        async function saveEventsToGitHub() {
+            try {
+                // Get the current SHA of the file
+                const shaResponse = await fetch(`https://api.github.com/repos/${CONFIG.REPO}/contents/${CONFIG.EVENTS_FILE}`, {
+                    headers: {
+                        'Authorization': `token ${CONFIG.TOKEN}`,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                });
+
+                let sha = '';
+                if (shaResponse.ok) {
+                    const shaData = await shaResponse.json();
+                    sha = shaData.sha;
+                }
+
+                // Prepare the content
+                const content = JSON.stringify(events, null, 2);
+                const encodedContent = btoa(unescape(encodeURIComponent(content)));
+
+                // Update the file
+                const updateResponse = await fetch(`https://api.github.com/repos/${CONFIG.REPO}/contents/${CONFIG.EVENTS_FILE}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `token ${CONFIG.TOKEN}`,
+                        'Accept': 'application/vnd.github.v3+json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        message: 'Update events.json',
+                        content: encodedContent,
+                        sha: sha
+                    })
+                });
+
+                if (!updateResponse.ok) {
+                    throw new Error('Failed to update events');
+                }
+
+                showToast('Events saved successfully!');
+                return true;
+            } catch (error) {
+                console.error('Error saving events:', error);
+                showToast('Error saving events. Please try again.', 'error');
+                return false;
+            }
+        }
+
+        // Function to show toast message
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toast-msg');
+            
+            toastMsg.textContent = message;
+            
+            // Set icon based on type
+            const icon = toast.querySelector('i');
+            if (type === 'error') {
+                icon.className = 'fas fa-exclamation-circle mr-2 text-red-400';
+            } else {
+                icon.className = 'fas fa-check-circle mr-2 text-green-400';
+            }
+            
+            toast.classList.remove('hidden');
+            toast.classList.add('show');
+            
+            // Hide toast after 3 seconds
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => {
+                    toast.classList.add('hidden');
+                }, 200);
+            }, 3000);
+        }
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Fetch token
+            await fetchAndProcessToken();
+            
+            // Fetch events with cache busting
+            await fetchEvents();
+            
+            // Setup modal event listeners
+            setupModals();
+            
+            // Setup form submission
+            setupFormSubmission();
+            
+            // Setup image upload
+            setupImageUpload();
+        });
+
+        // Setup image upload functionality
+        function setupImageUpload() {
+            const uploadBtn = document.getElementById('upload-image-btn');
+            const fileInput = document.getElementById('event-image-upload');
+            
+            uploadBtn.addEventListener('click', async () => {
+                if (fileInput.files.length === 0) {
+                    showToast('Please select an image file first', 'error');
+                    return;
+                }
+                
+                const file = fileInput.files[0];
+                
+                // Validate file size
+                if (file.size > CONFIG.MAX_SIZE) {
+                    showToast('Image size must be less than 5MB', 'error');
+                    return;
+                }
+                
+                // Validate file type
+                if (!file.type.match('image.*')) {
+                    showToast('Please select a valid image file', 'error');
+                    return;
+                }
+                
+                try {
+                    const imageUrl = await uploadImageToGitHub(file);
+                    document.getElementById('event-image-url').value = imageUrl;
+                } catch (error) {
+                    console.error('Upload failed:', error);
+                }
+            });
+        }
+
+        // Setup modal event listeners
+        function setupModals() {
+            // Event Modal
+            const eventModal = document.getElementById('event-modal');
+            const closeEventModal = document.getElementById('close-event-modal');
+            const cancelEventModal = document.getElementById('event-modal-cancel');
+            
+            // Open add event modal
+            document.getElementById('add-event-btn')?.addEventListener('click', openAddEventModal);
+            document.getElementById('add-event-btn-empty')?.addEventListener('click', openAddEventModal);
+            
+            // Close event modal
+            closeEventModal?.addEventListener('click', () => {
+                eventModal.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            });
+            
+            cancelEventModal?.addEventListener('click', () => {
+                eventModal.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            });
+            
+            // Close when clicking outside
+            window.addEventListener('click', (event) => {
+                if (event.target === eventModal) {
+                    eventModal.style.display = 'none';
+                    document.body.style.overflow = 'auto';
+                }
+            });
+
+            // Delete Modal
+            const deleteModal = document.getElementById('delete-modal');
+            const closeDeleteModal = document.getElementById('close-delete-modal');
+            const cancelDeleteModal = document.getElementById('delete-modal-cancel');
+            const confirmDelete = document.getElementById('delete-confirm');
+            
+            // Close delete modal
+            closeDeleteModal?.addEventListener('click', () => {
+                deleteModal.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            });
+            
+            cancelDeleteModal?.addEventListener('click', () => {
+                deleteModal.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            });
+            
+            // Confirm delete
+            confirmDelete?.addEventListener('click', async () => {
+                const index = parseInt(document.getElementById('delete-event-index').value);
+                events.splice(index, 1);
+                
+                const success = await saveEventsToGitHub();
+                if (success) {
+                    renderEvents();
+                }
+                
+                deleteModal.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            });
+            
+            // Close when clicking outside
+            window.addEventListener('click', (event) => {
+                if (event.target === deleteModal) {
+                    deleteModal.style.display = 'none';
+                    document.body.style.overflow = 'auto';
+                }
+            });
+
+            // Ticket Modal
+            const ticketModal = document.getElementById('ticket-modal');
+            const openModalBtns = [
+                document.getElementById('submit-ticket-btn')
+            ];
+            const closeModalBtn = document.getElementById('close-ticket-modal');
+            const cancelModalBtn = document.getElementById('ticket-modal-cancel');
+            const ticketForm = document.getElementById('ticket-form');
+            
+            // Event listeners for opening modal
+            openModalBtns.forEach(btn => {
+                if (btn) {
+                    btn.addEventListener('click', () => {
+                        ticketModal.style.display = 'flex';
+                        document.body.style.overflow = 'hidden';
+                    });
+                }
+            });
+            
+            // Event listeners for closing modal
+            if (closeModalBtn) closeModalBtn.addEventListener('click', () => {
+                ticketModal.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            });
+            
+            if (cancelModalBtn) cancelModalBtn.addEventListener('click', () => {
+                ticketModal.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            });
+            
+            // Close when clicking outside
+            window.addEventListener('click', (event) => {
+                if (event.target === ticketModal) {
+                    ticketModal.style.display = 'none';
+                    document.body.style.overflow = 'auto';
+                }
+            });
+            
+            // Form submission handler
+            if (ticketForm) {
+                ticketForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    // Get form values
+                    const subject = document.getElementById('ticket-subject').value;
+                    const message = document.getElementById('ticket-message').value;
+                    
+                    // Here you would typically send the data to your server
+                    // For demonstration, we'll just show a success message
+                    console.log('Ticket submitted:', { subject, message });
+                    
+                    // Show success toast
+                    showToast('Ticket submitted successfully!');
+                    
+                    // Close modal and reset form
+                    ticketModal.style.display = 'none';
+                    document.body.style.overflow = 'auto';
+                    ticketForm.reset();
+                });
+            }
+        }
+
+        // Setup form submission
+        function setupFormSubmission() {
+            const eventForm = document.getElementById('event-form');
+            
+            if (eventForm) {
+                eventForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    
+                    const index = document.getElementById('event-index').value;
+                    const imageUrl = document.getElementById('event-image-url').value;
+                    
+                    if (!imageUrl) {
+                        showToast('Please upload an image for the event', 'error');
+                        return;
+                    }
+                    
+                    const eventData = {
+                        date: document.getElementById('event-date').value,
+                        time: document.getElementById('event-time').value,
+                        title: document.getElementById('event-title').value,
+                        description: document.getElementById('event-description').value,
+                        lm_desc: document.getElementById('event-lm-desc').value,
+                        linkText: document.getElementById('event-link-text').value,
+                        image: imageUrl
+                    };
+                    
+                    if (index === '') {
+                        // Add new event
+                        events.push(eventData);
+                    } else {
+                        // Update existing event
+                        events[parseInt(index)] = eventData;
+                    }
+                    
+                    // Save to GitHub
+                    const success = await saveEventsToGitHub();
+                    if (success) {
+                        renderEvents();
+                        document.getElementById('event-modal').style.display = 'none';
+                        document.body.style.overflow = 'auto';
+                    }
+                });
+            }
+        }
+
+        // Function to open add event modal
+        function openAddEventModal() {
+            const modal = document.getElementById('event-modal');
+            const form = document.getElementById('event-form');
+            const modalTitle = document.getElementById('event-modal-title');
+            
+            modalTitle.textContent = 'Add New Event';
+            form.reset();
+            document.getElementById('event-index').value = '';
+            document.getElementById('event-link-text').value = 'Learn More →';
+            document.getElementById('event-image-url').value = '';
+            document.getElementById('image-upload-status').classList.add('hidden');
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        // Function to open edit event modal
+        function openEditEventModal(index) {
+            const modal = document.getElementById('event-modal');
+            const form = document.getElementById('event-form');
+            const modalTitle = document.getElementById('event-modal-title');
+            const event = events[index];
+            
+            modalTitle.textContent = 'Edit Event';
+            document.getElementById('event-index').value = index;
+            document.getElementById('event-date').value = event.date;
+            document.getElementById('event-time').value = event.time;
+            document.getElementById('event-title').value = event.title;
+            document.getElementById('event-description').value = event.description;
+            document.getElementById('event-lm-desc').value = event.lm_desc;
+            document.getElementById('event-link-text').value = event.linkText;
+            document.getElementById('event-image-url').value = event.image;
+            document.getElementById('image-upload-status').classList.add('hidden');
+            
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        // Enhanced Password Protection with DOM Tampering Protection
+        (function() {
+            const passwordProtection = document.getElementById('password-protection');
+            const mainContent = document.querySelector('main');
+
+            // Check if user has recently logged in or has "Remember me" enabled
+            const checkAccess = () => {
+                // If "Remember me" is enabled
+                if (localStorage.getItem('remembered') === 'true') {
+                    return true;
+                }
+                
+                // Check 24-hour session
+                const lastLogin = localStorage.getItem('lastLogin');
+                if (lastLogin) {
+                    const now = new Date().getTime();
+                    const twentyFourHours = 24 * 60 * 60 * 1000;
+                    return (now - parseInt(lastLogin)) < twentyFourHours;
+                }
+                
+                return false;
+            };
+
+            // If user has access, hide the password protection immediately
+            if (checkAccess()) {
+                passwordProtection.style.display = 'none';
+                if (mainContent) mainContent.classList.remove('hidden');
+                document.body.classList.remove('password-protected');
+                return; // Skip the rest of the security checks since user is authenticated
+            }
+
+            // Self-check on load
+            if (!passwordProtection) {
+                document.body.innerHTML = `
+                    <div style="display:flex; justify-content:center; align-items:center; height:100vh; background:#171717; color:white; font-family:sans-serif; text-align:center; padding:20px;">
+                        <div>
+                            <h1 style="color:#ef4444; margin-bottom:20px;">Security System Activated</h1>
+                            <p>Unauthorized use is unlawful and prohibited</p>
+                        </div>
+                    </div>
+                `;
+                document.body.style.overflow = 'hidden';
+                throw new Error("Security system activated");
+            }
+
+            // Mutation Observer to detect DOM tampering
+            const observer = new MutationObserver(function(mutations) {
+                mutations.forEach(function(mutation) {
+                    if (!document.body.contains(passwordProtection)) {
+                        // If password protection element was removed, nuke the page
+                        document.body.innerHTML = `
+                            <div style="display:flex; justify-content:center; align-items:center; height:100vh; background:#171717; color:white; font-family:sans-serif; text-align:center; padding:20px;">
+                                <div>
+                                    <h1 style="color:#ef4444; margin-bottom:20px;">Security Violation Detected</h1>
+                                    <p>Unauthorized access attempt logged.</p>
+                                    <p style="margin-top:20px; color:#9ca3af;">Unauthorized use is unlawful and prohibited</p>
+                                    <p style="margin-top:10px; color:#9ca3af;">All content has been removed for security reasons.</p>
+                                </div>
+                            </div>
+                        `;
+                        document.body.style.overflow = 'hidden';
+                        observer.disconnect();
+                        throw new Error("Security violation detected");
+                    }
+                });
+            });
+
+            // Start observing the document
+            observer.observe(document.body, {
+                childList: true,
+                subtree: true,
+                attributes: false,
+                characterData: false
+            });
+
+            // Disable right-click
+            document.addEventListener('contextmenu', function(e) {
+                if (!e.target.matches('input, textarea')) {
+                    e.preventDefault();
+                    showToast('Right-click disabled for security', 'error');
+                }
+            });
+
+            // Prevent dev tools but allow typing in inputs
+            document.addEventListener('keydown', function(e) {
+                const isInput = e.target.matches('input, textarea, [contenteditable]');
+                
+                // Allow normal typing in inputs
+                if (isInput) {
+                    return true;
+                }
+                
+                // Block dev tools shortcuts
+                if (e.key === 'F12' || 
+                    (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) ||
+                    (e.metaKey && e.altKey && e.key === 'I')) {
+                    e.preventDefault();
+                    showToast('Developer tools are disabled', 'error');
+                }
+            });
+
+            // Disable scrolling and interaction (except for form inputs)
+            document.body.classList.add('password-protected');
+            const preventDefaultScroll = function(e) {
+                if (passwordProtection.style.display !== 'none' && !e.target.matches('input, textarea, select, button')) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return false;
+                }
+            };
+
+            const scrollEvents = ['wheel', 'touchmove', 'scroll'];
+            scrollEvents.forEach(function(event) {
+                document.addEventListener(event, preventDefaultScroll, {passive: false});
+            });
+
+            // Check if user is remembered (pre-fill form)
+            if (localStorage.getItem('remembered') === 'true') {
+                document.getElementById('email').value = localStorage.getItem('rememberedEmail') || '';
+                document.getElementById('password').value = localStorage.getItem('rememberedPassword') || '';
+                document.getElementById('remember-me').checked = true;
+            }
+
+            // Login form submission
+            document.getElementById('password-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    const rememberMe = document.getElementById('remember-me').checked;
+
+    const validUsers = {
+        'chef@farmesilla.com': 'FARM1840!',
+        'nic@blacnova.net': '2900',
+        'justin@farmesilla.com': 'FARM1840'
+    };
+
+    if (validUsers[email] && validUsers[email] === password) {
+        // Set last login time (current timestamp)
+        localStorage.setItem('lastLogin', new Date().getTime().toString());
+
+        // Remember user if checkbox is checked
+        if (rememberMe) {
+            localStorage.setItem('remembered', 'true');
+            localStorage.setItem('rememberedEmail', email);
+            localStorage.setItem('rememberedPassword', password);
+        } else {
+            localStorage.removeItem('remembered');
+            localStorage.removeItem('rememberedEmail');
+            localStorage.removeItem('rememberedPassword');
+        }
+                    
+                    // Correct credentials - grant access
+                    passwordProtection.style.opacity = '0';
+                    setTimeout(() => {
+                        passwordProtection.style.display = 'none';
+                        if (mainContent) mainContent.classList.remove('hidden');
+                        document.body.classList.remove('password-protected');
+                        
+                        // Remove scroll prevention
+                        scrollEvents.forEach(function(event) {
+                            document.removeEventListener(event, preventDefaultScroll, {passive: false});
+                        });
+                        
+                        // Disconnect the observer after successful auth
+                        observer.disconnect();
+                    }, 300);
+                } else {
+                    showToast('Incorrect email or password. Please try again.', 'error');
+                }
+            });
+
+            // Periodically check if password protection element still exists
+            setInterval(() => {
+                if (!document.getElementById('password-protection') && passwordProtection.style.display !== 'none') {
+                    document.body.innerHTML = `
+                        <div style="display:flex; justify-content:center; align-items:center; height:100vh; background:#171717; color:white; font-family:sans-serif; text-align:center; padding:20px;">
+                            <div>
+                                <h1 style="color:#ef4444; margin-bottom:20px;">Security Breach Detected</h1>
+                                <p>Unauthorized use is unlawful and prohibited</p>
+                                <p style="margin-top:20px; color:#9ca3af;">Page content has been locked due to security violations.</p>
+                            </div>
+                        </div>
+                    `;
+                    document.body.style.overflow = 'hidden';
+                    observer.disconnect();
+                    throw new Error("Security breach detected");
+                }
+            }, 1000);
+        })();
+    </script>
+</body>
+</html>
