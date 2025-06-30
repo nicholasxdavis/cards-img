@@ -5,7 +5,8 @@
     "title": "Wine Tasting Night",
     "description": "Experience our finest local wine selection paired with artisanal cheeses.",
     "time": "7:00 PM",
-    "linkText": "Learn More →"
+    "linkText": "Learn More →",
+    "lm_desc": "Sample a curated selection of wines from regional vineyards, expertly paired with locally sourced cheeses and gourmet accompaniments. Enjoy the ambiance of our outdoor patio with live background music."
   },
   {
     "image": "https://raw.githubusercontent.com/nicholasxdavis/cards-img/main/assets/1751245610805-option-(2).png",
@@ -13,7 +14,8 @@
     "title": "Farmers Market Brunch",
     "description": "Sunday brunch featuring fresh ingredients from local producers.",
     "time": "10:00 AM",
-    "linkText": "Learn More →"
+    "linkText": "Learn More →",
+    "lm_desc": "Treat yourself to a wholesome brunch made from seasonal produce. This event features local vendors, organic options, and handcrafted beverages in a vibrant market atmosphere."
   },
   {
     "image": "https://raw.githubusercontent.com/nicholasxdavis/cards-img/main/assets/1751245610805-option-(2).png",
@@ -21,7 +23,8 @@
     "title": "Live Jazz Evening",
     "description": "Smooth jazz performances while you enjoy our seasonal menu.",
     "time": "8:00 PM",
-    "linkText": "Learn More →"
+    "linkText": "Learn More →",
+    "lm_desc": "Relax to the sounds of live jazz performed by talented local artists. Enjoy an intimate evening with our rotating seasonal menu and expertly crafted cocktails."
   },
   {
     "image": "https://raw.githubusercontent.com/nicholasxdavis/cards-img/main/assets/1751245610805-option-(2).png",
@@ -29,6 +32,43 @@
     "title": "Chef's Table Experience",
     "description": "Exclusive multi-course dinner prepared right before your eyes.",
     "time": "6:30 PM",
-    "linkText": "Learn More →"
+    "linkText": "Learn More →",
+    "lm_desc": "Join our head chef for a private dining experience featuring a multi-course tasting menu. Each dish is prepared and plated tableside with wine pairings and behind-the-scenes insights."
+  },
+  {
+    "image": "https://raw.githubusercontent.com/nicholasxdavis/cards-img/main/assets/1751245610805-option-(2).png",
+    "date": "JUL 13",
+    "title": "Summer Garden Picnic",
+    "description": "Enjoy a curated picnic basket in our beautiful garden setting.",
+    "time": "1:00 PM",
+    "linkText": "Learn More →",
+    "lm_desc": "Pre-order a gourmet picnic basket and enjoy a sunny afternoon in our flower-filled garden. Includes a mix of savory snacks, artisanal sandwiches, desserts, and refreshing beverages."
+  },
+  {
+    "image": "https://raw.githubusercontent.com/nicholasxdavis/cards-img/main/assets/1751245610805-option-(2).png",
+    "date": "JUL 20",
+    "title": "Sunset Acoustic Night",
+    "description": "Live acoustic music on the patio as the sun sets.",
+    "time": "7:30 PM",
+    "linkText": "Learn More →",
+    "lm_desc": "Watch the sunset while listening to acoustic sets from local singer-songwriters. A great evening to unwind with our special patio menu and a glass of wine or craft beer."
+  },
+  {
+    "image": "https://raw.githubusercontent.com/nicholasxdavis/cards-img/main/assets/1751245610805-option-(2).png",
+    "date": "JUL 27",
+    "title": "Salsa Dance Party",
+    "description": "Join us for an evening of salsa dancing and themed cocktails.",
+    "time": "9:00 PM",
+    "linkText": "Learn More →",
+    "lm_desc": "Spice up your night with energetic salsa rhythms and signature Latin cocktails. Beginners welcome—an instructor will be on-site to guide the steps before the dance floor opens up."
+  },
+  {
+    "image": "https://raw.githubusercontent.com/nicholasxdavis/cards-img/main/assets/1751245610805-option-(2).png",
+    "date": "AUG 3",
+    "title": "Local Art & Wine Showcase",
+    "description": "Browse local artwork while sipping on premium wines.",
+    "time": "5:00 PM",
+    "linkText": "Learn More →",
+    "lm_desc": "Celebrate creativity with an open gallery night featuring local artists and handcrafted wines. Mingle with the creators, discover new art, and enjoy a casual yet cultured evening."
   }
 ]
