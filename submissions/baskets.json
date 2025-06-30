@@ -1,16 +1,5 @@
 [
   {
-    "basketName": "Farmhouse Breakfast",
-    "basketPrice": "$45",
-    "customerName": "Nicholas Davis",
-    "customerPhone": "575-270-1276",
-    "customerEmail": "nic@blacnova.net",
-    "pickupTime": "9:00 AM - 11:00 AM",
-    "specialNotes": "none",
-    "orderDate": "2025-06-30T02:49:28.306Z",
-    "status": "pending"
-  },
-  {
     "basketName": "Wine Lover's Collection",
     "basketPrice": "$65",
     "customerName": "John Doe",
@@ -19,6 +8,17 @@
     "pickupTime": "9:00 AM - 11:00 AM",
     "specialNotes": "lol",
     "orderDate": "2025-06-30T02:54:40.239Z",
+    "status": "completed"
+  },
+  {
+    "basketName": "Farmhouse Breakfast",
+    "basketPrice": "$45",
+    "customerName": "Nicholas Davis",
+    "customerPhone": "575-270-1276",
+    "customerEmail": "nic@blacnova.net",
+    "pickupTime": "9:00 AM - 11:00 AM",
+    "specialNotes": "none",
+    "orderDate": "2025-06-30T02:49:28.306Z",
     "status": "pending"
   }
 ]
