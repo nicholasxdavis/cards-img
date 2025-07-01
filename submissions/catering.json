@@ -322,5 +322,33 @@
       "deliveryAddress": "f"
     },
     "formSubmissionDate": "2025-07-01T03:33:05.601Z"
+  },
+  {
+    "orderDate": "2025-07-01T03:36:32.845Z",
+    "portionSize": "20",
+    "subtotal": "$283.20",
+    "items": [
+      {
+        "id": "fdffe43f-9413-4328-971a-1992361d2d7a",
+        "name": "HAM & SMOKED GOUDA TORTA",
+        "quantity": 1,
+        "basePrice": 60,
+        "adjustedPrice": 240,
+        "addon": null,
+        "portionSize": 20
+      }
+    ],
+    "clientInfo": {
+      "name": "Benji Klips",
+      "email": "bklipos@gmail.com",
+      "phone": "5752226034"
+    },
+    "deliveryInfo": {
+      "orderDate": "2025-06-12",
+      "deliveryDate": "2025-06-29",
+      "deliveryTime": "14:36",
+      "deliveryAddress": "t"
+    },
+    "formSubmissionDate": "2025-07-01T03:36:32.845Z"
   }
 ]
