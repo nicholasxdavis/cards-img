@@ -45,5 +45,16 @@
     "orderDate": "2025-07-01T03:15:39.341Z",
     "status": "pending",
     "orderNumber": "ORD-739341"
+  },
+  {
+    "basketName": "Farmhouse Breakfast",
+    "basketPrice": "$45",
+    "customerName": "nicholas",
+    "customerPhone": "010101222",
+    "customerEmail": "chefbec@mac.com",
+    "pickupTime": "9:00 AM - 11:00 AM",
+    "specialNotes": "test",
+    "orderDate": "2025-07-02T15:42:56.514Z",
+    "status": "pending"
   }
 ]
