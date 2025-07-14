@@ -42,5 +42,13 @@
     "mobilePhoneNumber": "5752701276",
     "smsConsent": true,
     "signupDate": "2025-06-30T02:15:20.621Z"
+  },
+  {
+    "firstName": "Mary",
+    "lastName": "DiMatteo",
+    "email": "dimatteomary@ymail.com",
+    "mobilePhoneNumber": "575-649-7544",
+    "smsConsent": false,
+    "signupDate": "2025-07-14T17:39:54.126Z"
   }
 ]
