@@ -25,14 +25,5 @@
     "time": "8:00 PM",
     "linkText": "Learn More →",
     "lm_desc": "Relax to the sounds of live jazz performed by talented local artists. Enjoy an intimate evening with our rotating seasonal menu and expertly crafted cocktails."
-  },
-  {
-    "image": "https://raw.githubusercontent.com/nicholasxdavis/cards-img/main/assets/1751245610805-option-(2).png",
-    "date": "JUL 6",
-    "title": "Chef's Table Experience",
-    "description": "Exclusive multi-course dinner prepared right before your eyes.",
-    "time": "6:30 PM",
-    "linkText": "Learn More →",
-    "lm_desc": "Join our head chef for a private dining experience featuring a multi-course tasting menu. Each dish is prepared and plated tableside with wine pairings and behind-the-scenes insights."
   }
 ]
